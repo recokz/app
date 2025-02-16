@@ -1,16 +1,10 @@
+import { Flex } from "@mantine/core";
 import { SignUp } from "@clerk/nextjs";
 
 export default function Page() {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-      }}
-    >
+    <Flex h="100vh" align="center" justify="center">
       <SignUp />
-    </div>
+    </Flex>
   );
 }
