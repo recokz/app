@@ -80,6 +80,8 @@ function SignUp({ onSuccess }: { onSuccess: () => void }) {
               type="password"
               autoComplete="off"
             />
+
+            <div id="clerk-captcha"></div>
           </Flex>
 
           <Flex justify="space-between" align="center" gap={12}>
