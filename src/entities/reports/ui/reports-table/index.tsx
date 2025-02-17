@@ -99,7 +99,7 @@ export async function ReportsTable() {
                 <TableTd align="right">
                   <ActionIcon
                     component={Link}
-                    href={`/cabinet/reports/${item.id}/reconcile`}
+                    href={`/cabinet/${item.id}`}
                     variant="transparent"
                   >
                     <IconPencilMinus color="var(--mantine-color-dark-3)" />

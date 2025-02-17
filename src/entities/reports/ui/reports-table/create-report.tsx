@@ -12,7 +12,7 @@ export function CreateReportButton() {
   const { mutate, isPending } = useMutation({
     mutationFn: createReport,
     onSuccess: (data) => {
-      router.push(`/cabinet/reports/${data.id}/reconcile`);
+      router.push(`/cabinet/${data.id}`);
     },
   });
 
