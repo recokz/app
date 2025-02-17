@@ -15,7 +15,7 @@ export const createReport = async (): Promise<{ id: string }> => {
     data: {
       date: new Date(),
       cashBalance: 0,
-      status: ReportStatus.IN_PROGRESS,
+      status: ReportStatus.IMPORT,
       organization: {
         connect: {
           id: user.privateMetadata.organizationId as string,

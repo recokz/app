@@ -10,6 +10,7 @@ import {
 } from "@mantine/core";
 import { Suspense } from "react";
 import { ReportStatus } from "@prisma/client";
+import { ImportForm } from "./steps/import";
 
 type Props = {
   id: string;
@@ -57,7 +58,7 @@ export async function ReconcileForm({ id }: Props) {
         </AccordionControl>
         <AccordionPanel>
           <Suspense fallback={<Skeleton w="100%" h="300" />}>
-            <div />
+            <ImportForm />
           </Suspense>
         </AccordionPanel>
       </AccordionItem>
