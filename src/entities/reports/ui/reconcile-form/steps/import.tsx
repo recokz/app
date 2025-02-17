@@ -8,7 +8,7 @@ import {
 } from "@/entities/reports/types";
 import { useForm, zodResolver } from "@mantine/form";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { bankTypes, useDocumentTypeList } from "../utils";
 import { IconTrash } from "@tabler/icons-react";
@@ -36,6 +36,8 @@ import { IconCalendarPlus } from "@tabler/icons-react";
 import { parseXLSX } from "@/entities/reports/actions/parse";
 import { ReportStatus } from "@prisma/client";
 import { updateReport } from "@/entities/reports/actions/update";
+import { getReport } from "@/entities/reports/actions/get";
+import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
   date: z.date({ message: "Обязательное поле" }),
@@ -75,6 +77,20 @@ export function ImportForm() {
       crm_file: null,
     },
   });
+
+  const { data: report } = useQuery({
+    queryKey: ["report", params.id],
+    queryFn: () => getReport(params.id),
+  });
+
+  useEffect(() => {
+    if (report) {
+      form.setValues({
+        date: report.date,
+        cash_balance: report.cashBalance,
+      });
+    }
+  }, [report]);
 
   const bankBalanceValues = form.getValues().bank_balance;
 
