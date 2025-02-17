@@ -1,15 +1,19 @@
 import { Title } from "@mantine/core";
+import { ReconcileForm } from "@/entities/reports/ui/reconcile-form";
 
-type Props = {
-  searchParams: Record<string, string | string[] | undefined>;
-};
+export default async function ReconcilationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const reportId = (await params).id;
 
-export default async function ReconcilationPage({ searchParams }: Props) {
   return (
     <div>
       <Title order={3} mb={20}>
-        Сверить транзакции {searchParams.id}
+        Сверить транзакции
       </Title>
+      <ReconcileForm id={reportId} />
     </div>
   );
 }

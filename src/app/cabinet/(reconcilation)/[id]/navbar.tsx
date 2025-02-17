@@ -1,3 +1,4 @@
+import { prisma } from "@/shared/prisma/prisma";
 import {
   AppShellNavbar,
   Box,
@@ -8,6 +9,7 @@ import {
   Title,
   Text,
 } from "@mantine/core";
+import { ReportStatus } from "@prisma/client";
 import {
   IconArrowLeft,
   IconChecklist,
@@ -17,7 +19,34 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 
-export function ReconcileNavbar() {
+type Props = {
+  id: string;
+};
+
+export async function ReconcileNavbar({ id }: Props) {
+  const report = await prisma.report.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  let timelineStep = 0;
+
+  switch (report?.status) {
+    case ReportStatus.IMPORT:
+      timelineStep = 0;
+      break;
+    case ReportStatus.SALES:
+      timelineStep = 1;
+      break;
+    case ReportStatus.INCOME:
+      timelineStep = 2;
+      break;
+    case ReportStatus.EXPENSES:
+      timelineStep = 3;
+      break;
+  }
+
   return (
     <AppShellNavbar p="md">
       <Stack justify="space-between" h="100%">
@@ -27,7 +56,7 @@ export function ReconcileNavbar() {
           </Title>
 
           <Box p={10} pr={20}>
-            <Timeline active={0}>
+            <Timeline active={timelineStep}>
               <TimelineItem bullet={<IconUpload />} title="Импорт">
                 <Text size="sm" c="dimmed">
                   Загрузите выписки из банка и данные о продажах.

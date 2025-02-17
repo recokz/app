@@ -19,7 +19,7 @@ model Report {
   id             String       @id @default(uuid()) @map("id") 
   date           DateTime     @map("date")
   cashBalance    Int          @map("cash_balance")
-  status         ReportStatus @map("status") @default(IN_PROGRESS)
+  status         ReportStatus @map("status") @default(IMPORT)
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
@@ -28,6 +28,9 @@ model Report {
 }
 
 enum ReportStatus {
-  IN_PROGRESS
+  IMPORT
+  SALES
+  INCOME
+  EXPENSES
   DONE
 }

@@ -31,12 +31,6 @@ export async function ReportsTable() {
   const reports = await prisma.report.findMany({
     where: {
       organizationId: user.privateMetadata.organizationId as string,
-      status:
-        tab === "all"
-          ? undefined
-          : tab === "in_progress"
-          ? ReportStatus.IN_PROGRESS
-          : ReportStatus.DONE,
     },
   });
 
@@ -45,15 +39,14 @@ export async function ReportsTable() {
   let doneCount = 0;
 
   reports?.forEach((item) => {
-    if (item.status === ReportStatus.IN_PROGRESS) inProgressCount++;
+    if (item.status !== ReportStatus.DONE) inProgressCount++;
     if (item.status === ReportStatus.DONE) doneCount++;
   });
 
   const displayedReports =
     reports?.filter((item) => {
       if (tab === "all") return true;
-      if (tab === "in_progress")
-        return item.status === ReportStatus.IN_PROGRESS;
+      if (tab === "in_progress") return item.status !== ReportStatus.DONE;
       if (tab === "done") return item.status === ReportStatus.DONE;
     }) || [];
 
@@ -86,7 +79,7 @@ export async function ReportsTable() {
                 <TableTd>{item.date.toLocaleDateString()}</TableTd>
                 <TableTd>{item.cashBalance}</TableTd>
                 <TableTd>
-                  {item.status === ReportStatus.IN_PROGRESS ? (
+                  {item.status !== ReportStatus.DONE ? (
                     <Badge variant="light" color="blue" size="lg" radius="xs">
                       В работе
                     </Badge>
