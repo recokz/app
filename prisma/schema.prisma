@@ -11,5 +11,23 @@ model Organization {
   id        String   @id @default(uuid()) @map("id") 
   name      String
   xin       String
+  reports   Report[]
   createdAt DateTime @default(now()) @map("created_at")
+}
+
+model Report {
+  id             String       @id @default(uuid()) @map("id") 
+  date           DateTime     @map("date")
+  cashBalance    Int          @map("cash_balance")
+  status         ReportStatus @map("status") @default(IN_PROGRESS)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  createdAt      DateTime     @default(now()) @map("created_at")
+}
+
+enum ReportStatus {
+  IN_PROGRESS
+  DONE
 }

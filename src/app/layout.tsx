@@ -3,8 +3,10 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { MantineProvider } from "./mantine-provider";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import { ruRU } from "@clerk/localizations";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "./globals.css";
+import { QueryProvider } from "./query-provider";
 
 export const metadata: Metadata = {
   title: "Reco.kz",
@@ -23,7 +25,11 @@ export default function RootLayout({
           <ColorSchemeScript />
         </head>
         <body>
-          <MantineProvider>{children}</MantineProvider>
+          <QueryProvider>
+            <NuqsAdapter>
+              <MantineProvider>{children}</MantineProvider>
+            </NuqsAdapter>
+          </QueryProvider>
         </body>
       </html>
     </ClerkProvider>
