@@ -34,6 +34,8 @@ import { DynamicTable } from "@/features/dynamic-table";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarPlus } from "@tabler/icons-react";
 import { parseXLSX } from "@/entities/reports/actions/parse";
+import { ReportStatus } from "@prisma/client";
+import { updateReport } from "@/entities/reports/actions/update";
 
 const formSchema = z.object({
   date: z.date({ message: "Обязательное поле" }),
@@ -126,8 +128,22 @@ export function ImportForm() {
     setBank(null);
   };
 
-  const handleSubmit = (values: SchemaType) => {
+  const handleSubmit = async (values: SchemaType) => {
     console.log("onSubmit", params.id, values, sheets);
+
+    // Update a report
+    await updateReport(params.id, {
+      date: values.date,
+      status: ReportStatus.IMPORT,
+      cashBalance: values.cash_balance,
+    });
+
+    // Create a bank document
+
+    // Reconcilation transactions
+
+    // Create a bank transactions
+
     // sheets.forEach(async (sheet) => {
     //   const bankDoc = await createBankDoc(
     //     sheet.filename,
