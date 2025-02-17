@@ -30,6 +30,7 @@ CREATE TABLE "reports" (
 CREATE TABLE "bank_documents" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "balance" INTEGER NOT NULL,
     "report_id" TEXT NOT NULL,
     "type_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -13,11 +13,11 @@ export const createOrganization = async (
     throw new Error("Не удалось зарегистрироваться");
   }
 
-  const organization = await prisma.organization.create({
-    data: { name, xin },
-  });
-
   try {
+    const organization = await prisma.organization.create({
+      data: { name, xin },
+    });
+
     await clerk.users.updateUserMetadata(userId, {
       privateMetadata: {
         organizationId: organization.id,

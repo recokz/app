@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Organization {
-  id        String   @id @default(uuid()) @map("id") 
+  id        String   @id @default(uuid()) @map("id")
   name      String
   xin       String
   reports   Report[]
@@ -18,17 +18,17 @@ model Organization {
 }
 
 model Report {
-  id             String       @id @default(uuid()) @map("id") 
-  date           DateTime     @map("date")
-  cashBalance    Int          @map("cash_balance")
-  status         ReportStatus @map("status") @default(IMPORT)
+  id          String       @id @default(uuid()) @map("id")
+  date        DateTime     @map("date")
+  cashBalance Int          @map("cash_balance")
+  status      ReportStatus @default(IMPORT) @map("status")
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
 
-  bankDocuments  BankDocument[]
+  bankDocuments BankDocument[]
 
-  createdAt      DateTime     @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("reports")
 }
@@ -42,27 +42,27 @@ enum ReportStatus {
 }
 
 model BankDocument {
-  id           String     @id @default(uuid()) @map("id") 
-  name         String
-  balance      Int        @map("balance")
+  id      String @id @default(uuid()) @map("id")
+  name    String
+  balance Int    @map("balance")
 
-  report       Report     @relation(fields: [reportId], references: [id])
-  reportId     String     @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id])
+  reportId String @map("report_id")
 
-  type         BankType   @relation(fields: [typeId], references: [id])
-  typeId       String     @map("type_id")
+  type   BankType @relation(fields: [typeId], references: [id])
+  typeId String   @map("type_id")
 
   transactions BankTransaction[]
 
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("bank_documents")
 }
 
 model BankType {
-  id        String   @id @default(uuid()) @map("id") 
-  name      String
-  meta      Json
+  id   String @id @default(uuid()) @map("id")
+  name String
+  meta Json
 
   documents BankDocument[]
 
@@ -72,30 +72,30 @@ model BankType {
 }
 
 model BankTransaction {
-  id         String          @id @default(uuid()) @map("id") 
-  amount     Int             @map("amount")
-  date       DateTime        @map("date")
+  id     String   @id @default(uuid()) @map("id")
+  amount Int      @map("amount")
+  date   DateTime @map("date")
 
-  document   BankDocument    @relation(fields: [documentId], references: [id])
-  documentId String          @map("document_id")
+  document   BankDocument @relation(fields: [documentId], references: [id])
+  documentId String       @map("document_id")
 
-  type       TransactionType @relation(fields: [typeId], references: [id])
-  typeId     String          @map("type_id")
+  type   TransactionType @relation(fields: [typeId], references: [id])
+  typeId String          @map("type_id")
 
-  createdAt  DateTime        @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("bank_transactions")
 }
 
 model TransactionType {
-  id           String              @id @default(uuid()) @map("id") 
-  name         String
+  id   String @id @default(uuid()) @map("id")
+  name String
 
-  category     TransactionCategory @map("category") @default(ADMISSION)
+  category TransactionCategory @default(ADMISSION) @map("category")
 
   transactions BankTransaction[]
 
-  createdAt    DateTime            @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("transaction_types")
 }
