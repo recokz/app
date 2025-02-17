@@ -10,22 +10,33 @@ import {
 } from "@mantine/core";
 import { IconAt } from "@tabler/icons-react";
 import { useForm, zodResolver } from "@mantine/form";
-import { showNotification } from "@mantine/notifications";
 import { z } from "zod";
 import Link from "next/link";
-import { emailValidator, passwordValidator } from "@/shared/libs/validators";
-import { useSignUp } from "@clerk/nextjs";
+import {
+  emailValidator,
+  passwordValidator,
+  xinValidator,
+} from "@/shared/libs/validators";
+import { useClerkSignUp } from "@/shared/clerk/hooks";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
+export function SignUpForm() {
+  const [pendingVerification, setPendingVerification] = useState(false);
+
+  return !pendingVerification ? (
+    <SignUp onSuccess={() => setPendingVerification(true)} />
+  ) : (
+    <Verify />
+  );
+}
+
 const formSchema = z.object({
   email: emailValidator,
   password: passwordValidator,
 });
 
-export function SignUpForm() {
-  const router = useRouter();
-  const { signUp, isLoaded } = useSignUp();
-  const [pendingVerification, setPendingVerification] = useState(false);
+function SignUp({ onSuccess }: { onSuccess: () => void }) {
+  const { signUp, isLoaded, isLoading } = useClerkSignUp();
 
   const form = useForm({
     mode: "uncontrolled",
@@ -34,54 +45,11 @@ export function SignUpForm() {
 
   const handleSubmit = async (values: typeof form.values) => {
     if (!isLoaded) return;
-
-    try {
-      await signUp.create({
-        emailAddress: values.email,
-        password: values.password,
-      });
-      await signUp.prepareEmailAddressVerification();
-
-      showNotification({
-        title: "Спасибо за регистрацию!",
-        message:
-          "Проверьте свою электронную почту на наличие ссылки для подтверждения.",
-        color: "green",
-      });
-      setPendingVerification(true);
-    } catch (error) {
-      showNotification({
-        title: "Не удалось зарегистрироваться",
-        message: "Попробуйте ещё раз",
-        color: "red",
-      });
-      console.error(error);
-    }
+    await signUp(values.email, values.password);
+    onSuccess();
   };
 
-  const handleVerify = async (values: typeof form.values) => {
-    if (!isLoaded) return;
-
-    try {
-      const result = await signUp.attemptVerification({
-        code: values.code,
-        strategy: "email_code",
-      });
-      if (result.status === "complete") {
-        router.push("/cabinet");
-      }
-      console.log(result);
-    } catch (error) {
-      showNotification({
-        title: "Не удалось подтвердить почту",
-        message: "Попробуйте ещё раз",
-        color: "red",
-      });
-      console.error(error);
-    }
-  };
-
-  return !pendingVerification ? (
+  return (
     <Flex direction="column" gap={36} align="center">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Flex direction="column" gap={32} maw="600px">
@@ -119,7 +87,12 @@ export function SignUpForm() {
               Нажимая кнопку “зарегистрироваться”, вы
               <br /> соглашаетесь с Политикой конфиденциальности
             </Text>
-            <Button type="submit" size="lg" disabled={!isLoaded}>
+            <Button
+              type="submit"
+              size="lg"
+              loading={isLoading}
+              disabled={!isLoaded}
+            >
               Зарегистрироваться
             </Button>
           </Flex>
@@ -133,13 +106,36 @@ export function SignUpForm() {
         </Text>
       </Text>
     </Flex>
-  ) : (
+  );
+}
+
+const verifyFormSchema = z.object({
+  name: z.string({ message: "Обязательное поле" }),
+  code: z.string({ message: "Обязательное поле" }),
+  xin: xinValidator,
+});
+
+function Verify() {
+  const { verify, isLoaded, isLoading } = useClerkSignUp();
+
+  const form = useForm({
+    mode: "uncontrolled",
+    validate: zodResolver(verifyFormSchema),
+  });
+
+  const handleVerify = async (values: typeof form.values) => {
+    if (!isLoaded) return;
+
+    await verify(values.code);
+  };
+
+  return (
     <Flex direction="column" gap={36} align="center">
       <form onSubmit={form.onSubmit(handleVerify)}>
         <Flex direction="column" gap={32} maw="600px">
           <Flex direction="column" gap={12} align="center">
             <Title order={2} ta="center">
-              Подтвердите свою почту
+              Данные компании
             </Title>
             <Text size="lg" c="dimmed" ta="center">
               Управляйте платежами онлайн. Добавляйте документы к сравнению,
@@ -149,18 +145,36 @@ export function SignUpForm() {
 
           <Flex direction="column" gap={12}>
             <TextInput
+              {...form.getInputProps("name")}
+              size="lg"
+              placeholder="Название организации"
+              name="name"
+              autoComplete="off"
+            />
+            <TextInput
+              {...form.getInputProps("xin")}
+              size="lg"
+              placeholder="ИИН/БИН"
+              name="xin"
+              autoComplete="off"
+            />
+            <TextInput
               {...form.getInputProps("code")}
               size="lg"
               placeholder="Введите код, отправленный на вашу электронную почту"
               name="code"
-              rightSection={<IconAt size={16} />}
               autoComplete="off"
             />
           </Flex>
 
           <Flex justify="space-between" align="center" gap={12}>
             <Text size="sm" c="dimmed"></Text>
-            <Button type="submit" size="lg" disabled={!isLoaded}>
+            <Button
+              type="submit"
+              size="lg"
+              loading={isLoading}
+              disabled={!isLoaded}
+            >
               Подтвердить
             </Button>
           </Flex>
