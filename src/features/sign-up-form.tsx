@@ -126,7 +126,7 @@ function Verify() {
   const handleVerify = async (values: typeof form.values) => {
     if (!isLoaded) return;
 
-    await verify(values.code);
+    await verify(values.name, values.xin, values.code);
   };
 
   return (

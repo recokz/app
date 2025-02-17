@@ -1,3 +1,4 @@
+import { createOrganization } from "@/entities/organizations/actions";
 import { useSignIn, useClerk, useSignUp } from "@clerk/nextjs";
 import { showNotification } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
@@ -39,7 +40,7 @@ export const useClerkSignUp = () => {
     }
   };
 
-  const verify = async (code: string) => {
+  const verify = async (name: string, xin: string, code: string) => {
     if (!isLoaded) return;
 
     setIsLoading(true);
@@ -51,6 +52,7 @@ export const useClerkSignUp = () => {
       });
 
       if (result.status === "complete") {
+        await createOrganization(result.createdUserId, name, xin);
         setActive({ session: result.createdSessionId });
         router.push("/cabinet");
       }
