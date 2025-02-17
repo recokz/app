@@ -1,10 +1,10 @@
 import { Flex } from "@mantine/core";
-import { SignUp } from "@clerk/nextjs";
+import { SignUpForm } from "@/features/sign-up-form";
 
 export default function Page() {
   return (
     <Flex h="100vh" align="center" justify="center">
-      <SignUp />
+      <SignUpForm />
     </Flex>
   );
 }

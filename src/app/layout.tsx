@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { MantineProvider } from "./mantine-provider";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
+import { ruRU } from "@clerk/localizations";
 
 import "./globals.css";
 
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={ruRU}>
       <html lang="ru" {...mantineHtmlProps}>
         <head>
           <ColorSchemeScript />
