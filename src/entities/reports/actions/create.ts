@@ -1,28 +1,29 @@
 "use server";
 
 import { prisma } from "@/shared/prisma/prisma";
-import { ReportStatus } from "@prisma/client";
-import { currentUser } from "@clerk/nextjs/server";
 
-export const createReport = async (): Promise<{ id: string }> => {
-  const user = await currentUser();
-
-  if (!user) {
-    throw new Error("Ошибка с авторизацией, попробуйте перезайти в систему");
-  }
-
-  const report = await prisma.report.create({
+export const createBankDoc = async (
+  name: string,
+  balance: number,
+  reportId: string,
+  bankTypeId: string
+) => {
+  const bankDoc = await prisma.bankDocument.create({
     data: {
-      date: new Date(),
-      cashBalance: 0,
-      status: ReportStatus.IMPORT,
-      organization: {
+      name,
+      balance,
+      report: {
         connect: {
-          id: user.privateMetadata.organizationId as string,
+          id: reportId,
+        },
+      },
+      type: {
+        connect: {
+          id: bankTypeId,
         },
       },
     },
   });
 
-  return { id: report.id };
+  return { id: bankDoc.id };
 };

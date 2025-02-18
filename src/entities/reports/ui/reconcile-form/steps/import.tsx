@@ -29,15 +29,17 @@ import {
   FileInput,
   TableThead,
   ActionIcon,
+  LoadingOverlay,
+  Box,
+  Loader,
 } from "@mantine/core";
 import { DynamicTable } from "@/features/dynamic-table";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarPlus } from "@tabler/icons-react";
 import { parseXLSX } from "@/entities/reports/actions/parse";
 import { ReportStatus } from "@prisma/client";
-import { updateReport } from "@/entities/reports/actions/update";
-import { getReport } from "@/entities/reports/actions/get";
 import { useQuery } from "@tanstack/react-query";
+import { actions } from "@/entities/reports/actions";
 
 const formSchema = z.object({
   date: z.date({ message: "Обязательное поле" }),
@@ -78,18 +80,18 @@ export function ImportForm() {
     },
   });
 
-  const { data: report } = useQuery({
+  const { data: report, isLoading: isReportLoading } = useQuery({
     queryKey: ["report", params.id],
-    queryFn: () => getReport(params.id),
+    queryFn: () => actions.report.get(params.id),
   });
 
   useEffect(() => {
-    if (report) {
-      form.setValues({
-        date: report.date,
-        cash_balance: report.cashBalance,
-      });
-    }
+    if (!report) return;
+
+    form.setValues({
+      date: report.date,
+      cash_balance: report.cashBalance,
+    });
   }, [report]);
 
   const bankBalanceValues = form.getValues().bank_balance;
@@ -148,10 +150,23 @@ export function ImportForm() {
     console.log("onSubmit", params.id, values, sheets);
 
     // Update a report
-    await updateReport(params.id, {
+    await actions.report.update(params.id, {
       date: values.date,
       status: ReportStatus.IMPORT,
       cashBalance: values.cash_balance,
+    });
+
+    console.log("report", report);
+
+    values.bank_balance.forEach((item) => {
+      const bankDoc = report?.bankDocuments.some(
+        (doc) => doc.type.name === item.bank
+      );
+
+      if (!bankDoc) {
+        // createBankDoc(item.bank, item.balance, params.id, bankDoc.type.id);
+      }
+      console.log("bankDoc", bankDoc);
     });
 
     // Create a bank document
@@ -183,8 +198,12 @@ export function ImportForm() {
   };
 
   return (
-    <>
+    <Box pos="relative">
       <form onSubmit={form.onSubmit(handleSubmit)}>
+        <LoadingOverlay
+          visible={isReportLoading}
+          loaderProps={{ children: <Loader color="blue" /> }}
+        />
         <Stack gap={20}>
           <Table variant="vertical" verticalSpacing="xs" withRowBorders={false}>
             <TableTbody>
@@ -348,6 +367,6 @@ export function ImportForm() {
       >
         <DynamicTable data={previewSheet?.data || []} />
       </Modal>
-    </>
+    </Box>
   );
 }
