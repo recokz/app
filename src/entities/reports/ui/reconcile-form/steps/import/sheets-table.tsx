@@ -1,5 +1,4 @@
 import { Sheet, DEFAULT_FIELDS } from "@/entities/reports/types";
-import { DynamicTable } from "@/features/dynamic-table";
 import {
   Table,
   TableThead,
@@ -9,6 +8,7 @@ import {
   TableTd,
   ActionIcon,
   Modal,
+  ScrollArea,
 } from "@mantine/core";
 import { IconEye, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
@@ -40,7 +40,7 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
             <TableTr key={index}>
               <TableTd>{sheet.filename}</TableTd>
               <TableTd>{DEFAULT_FIELDS[sheet.docType].title}</TableTd>
-              <TableTd>{sheet.data?.length || 0}</TableTd>
+              <TableTd>{sheet.transactions.length}</TableTd>
               <TableTd>
                 <ActionIcon
                   variant="transparent"
@@ -69,7 +69,32 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
         onClose={() => setPreviewSheet(undefined)}
         size="100%"
       >
-        <DynamicTable data={previewSheet?.data || []} />
+        <ScrollArea>
+          <Table>
+            <TableThead>
+              <TableTr>
+                <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
+                  Время
+                </TableTh>
+                <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
+                  Сумма
+                </TableTh>
+              </TableTr>
+            </TableThead>
+            <TableTbody>
+              {previewSheet?.transactions.map((row, index) => (
+                <TableTr key={index}>
+                  <TableTd style={{ whiteSpace: "nowrap" }}>
+                    {row.date.toISOString()}
+                  </TableTd>
+                  <TableTd style={{ whiteSpace: "nowrap" }}>
+                    {row.amount}
+                  </TableTd>
+                </TableTr>
+              ))}
+            </TableTbody>
+          </Table>
+        </ScrollArea>
       </Modal>
     </>
   );

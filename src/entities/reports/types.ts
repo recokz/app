@@ -2,10 +2,16 @@ export interface DataObject {
   [key: string]: string;
 }
 
+export interface Transaction {
+  amount: number;
+  date: Date;
+}
+
 export type Sheet = {
   filename: string;
   docType: ParserDocumentTypes;
   data: DataObject[];
+  transactions: Transaction[];
 };
 
 export type ParserDocumentTypes = "KASPI" | "HALYK" | "MOYSLAD";

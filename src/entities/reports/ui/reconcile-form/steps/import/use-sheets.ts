@@ -4,6 +4,7 @@ import {
   DataObject,
   ParserDocumentTypes,
   DEFAULT_FIELDS,
+  Transaction,
 } from "@/entities/reports/types";
 import { parseXLSX } from "@/entities/reports/actions/parse";
 
@@ -24,6 +25,7 @@ export function useSheets() {
         sheetNumber: defaultFields.sheetNumber,
         rowNumber: defaultFields.rowNumber,
         dateField: defaultFields.dateField,
+        timeField: defaultFields.timeField,
         amountField: defaultFields.amountField,
       });
 
@@ -33,6 +35,11 @@ export function useSheets() {
           filename: file.name,
           docType: type as ParserDocumentTypes,
           data: response.data,
+          transactions:
+            (response.data.map((item) => ({
+              amount: Number(item[defaultFields.amountField]),
+              date: new Date(item[defaultFields.dateField]),
+            })) as Transaction[]) || [],
         },
       ]);
 

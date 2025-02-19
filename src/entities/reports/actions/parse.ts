@@ -9,6 +9,7 @@ type XlsxParserInput = {
   sheetNumber: number;
   rowNumber: number;
   dateField: string;
+  timeField?: string;
   amountField: string;
 };
 
@@ -17,6 +18,7 @@ export const parseXLSX = async ({
   sheetNumber,
   rowNumber,
   dateField,
+  timeField,
   amountField,
   date,
 }: XlsxParserInput) => {
@@ -26,38 +28,68 @@ export const parseXLSX = async ({
   const worksheet = workbook.Sheets[sheetName];
   const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: rowNumber });
 
-  const data = jsonData?.filter((row: unknown) => {
-    const typedRow = row as Record<string, string | number>;
+  const data = jsonData
+    ?.filter((row: unknown) => {
+      const typedRow = row as Record<string, string | number>;
 
-    const dateTime = typedRow[dateField];
-    let rowDate;
+      const dateTime = typedRow[dateField];
+      let rowDate;
 
-    switch (typeof dateTime) {
-      case "number":
-        rowDate = excelDateToJSDate(dateTime);
-        break;
-      case "string":
-        const stringDateTime = dateTime?.split(" ")?.[0];
-        const [day, month, year] = stringDateTime
-          ? stringDateTime.split(".")
-          : ["", "", ""];
-        rowDate = `${year}-${month}-${day}`;
-        break;
-      default:
-        rowDate = dateTime;
-    }
+      switch (typeof dateTime) {
+        case "number":
+          rowDate = excelDateToJSDate(dateTime);
+          break;
+        case "string":
+          const stringDateTime = dateTime?.split(" ")?.[0];
+          const [day, month, year] = stringDateTime
+            ? stringDateTime.split(".")
+            : ["", "", ""];
+          rowDate = `${year}-${month}-${day}`;
+          break;
+        default:
+          rowDate = dateTime;
+      }
 
-    const amountString = typedRow[amountField];
+      const amountString = typedRow[amountField];
 
-    const amount =
-      typeof amountString === "string"
-        ? parseFloat(amountString.replace(",", "."))
-        : amountString;
+      const amount =
+        typeof amountString === "string"
+          ? parseFloat(amountString.replace(",", "."))
+          : amountString;
 
-    return (
-      rowDate && rowDate === dayjs(date).format("YYYY-MM-DD") && !isNaN(amount)
-    );
-  });
+      return (
+        rowDate &&
+        rowDate === dayjs(date).format("YYYY-MM-DD") &&
+        !isNaN(amount)
+      );
+    })
+    ?.map((row: unknown) => {
+      const typedRow = row as Record<string, string | number>;
+
+      const dateTime = typedRow[dateField];
+      const time = timeField ? typedRow[timeField] : null;
+      let rowDate;
+
+      switch (typeof dateTime) {
+        case "number":
+          rowDate = Math.round((dateTime - 25569) * 86400 * 1000);
+          break;
+        case "string":
+          const stringDate = dateTime?.split(" ")?.[0];
+          const [day, month, year] = stringDate
+            ? stringDate.split(".")
+            : ["", "", ""];
+          rowDate = `${year}-${month}-${day}` + (time ? ` ${time}` : "");
+          break;
+        default:
+          rowDate = dateTime;
+      }
+
+      return {
+        ...typedRow,
+        [dateField]: rowDate,
+      };
+    });
 
   return {
     data: JSON.parse(JSON.stringify(data)),

@@ -26,7 +26,10 @@ import { IconCalendarPlus } from "@tabler/icons-react";
 import { ReportStatus } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { updateReport, getReport } from "@/entities/reports/actions/report";
-import { createBankDoc } from "@/entities/reports/actions/document";
+import {
+  createBankDoc,
+  createBankTransaction,
+} from "@/entities/reports/actions/document";
 import { SchemaType, formSchema } from "./schema";
 import { useSheets } from "./use-sheets";
 import { SheetsTable } from "./sheets-table";
@@ -68,6 +71,21 @@ export function ImportForm() {
         balance: item.balance,
       })),
     });
+
+    report.bankDocuments.forEach((item) => {
+      setSheets((prev) => [
+        ...prev,
+        {
+          filename: item.name,
+          docType: item.type,
+          transactions: item.transactions.map((transaction) => ({
+            amount: transaction.amount,
+            date: transaction.date,
+          })),
+          data: [],
+        },
+      ]);
+    });
   }, [report]);
 
   const bankBalanceValues = form.getValues().bank_balance;
@@ -104,12 +122,29 @@ export function ImportForm() {
 
     // Create a bank documents
     for (const item of values.bank_balance) {
-      const bankDoc = report?.bankDocuments.some(
+      const bankDoc = report?.bankDocuments.find(
         (doc) => doc.type === item.bank
       );
 
-      if (!bankDoc) {
-        await createBankDoc(item.bank, item.balance, params.id, item.bank);
+      let bankDocId = bankDoc?.id;
+
+      if (!bankDocId) {
+        const { id } = await createBankDoc(
+          item.bank,
+          item.balance,
+          params.id,
+          item.bank
+        );
+
+        bankDocId = id;
+      }
+
+      const transactions = sheets.find(
+        (sheet) => sheet.docType === item.bank
+      )?.transactions;
+
+      if (transactions) {
+        await createBankTransaction(bankDocId, transactions);
       }
     }
 
