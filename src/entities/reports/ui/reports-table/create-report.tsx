@@ -4,8 +4,8 @@ import { Button } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { createReport } from "../../actions/create";
-
+import { notifications } from "@mantine/notifications";
+import { createReport } from "../../actions/report";
 export function CreateReportButton() {
   const router = useRouter();
 
@@ -13,6 +13,13 @@ export function CreateReportButton() {
     mutationFn: createReport,
     onSuccess: (data) => {
       router.push(`/cabinet/${data.id}`);
+    },
+    onError: (error) => {
+      notifications.show({
+        title: "Не удалось создать отчет",
+        message: error.message,
+        color: "red",
+      });
     },
   });
 

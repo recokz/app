@@ -49,8 +49,7 @@ model BankDocument {
   report   Report @relation(fields: [reportId], references: [id])
   reportId String @map("report_id")
 
-  type   BankType @relation(fields: [typeId], references: [id])
-  typeId String   @map("type_id")
+  type   BankType  @default(KASPI) @map("type")
 
   transactions BankTransaction[]
 
@@ -59,17 +58,11 @@ model BankDocument {
   @@map("bank_documents")
 }
 
-model BankType {
-  id   String @id @default(uuid()) @map("id")
-  name String
-  meta Json
-
-  documents BankDocument[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("bank_types")
+enum BankType {
+  KASPI
+  HALYK
 }
+
 
 model BankTransaction {
   id     String   @id @default(uuid()) @map("id")

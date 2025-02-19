@@ -1,8 +1,9 @@
 import { useMemo } from "react";
+import { BankType } from "@prisma/client";
 
-export const bankTypes: Record<string, string> = {
-  kaspi: "Каспи банк",
-  halyk: "Халық банк",
+export const bankTypes: Record<BankType, string> = {
+  KASPI: "Каспи банк",
+  HALYK: "Халық банк",
 };
 
 export const crmTypes: Record<string, string> = {
@@ -10,7 +11,7 @@ export const crmTypes: Record<string, string> = {
 };
 
 interface BankBalance {
-  bank: string;
+  bank: BankType;
   balance: number;
 }
 

@@ -4,7 +4,7 @@ import { prisma } from "@/shared/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { ReportStatus } from "@prisma/client";
 
-const createReport = async (): Promise<{ id: string }> => {
+export const createReport = async (): Promise<{ id: string }> => {
   const user = await currentUser();
 
   if (!user) {
@@ -27,7 +27,7 @@ const createReport = async (): Promise<{ id: string }> => {
   return { id: report.id };
 };
 
-const getReport = async (id: string) => {
+export const getReport = async (id: string) => {
   const report = await prisma.report.findFirst({
     where: { id },
     include: {
@@ -38,7 +38,6 @@ const getReport = async (id: string) => {
               type: true,
             },
           },
-          type: true,
         },
       },
     },
@@ -51,7 +50,7 @@ const getReport = async (id: string) => {
   return report;
 };
 
-const updateReport = async (
+export const updateReport = async (
   id: string,
   data: {
     date: Date;
@@ -69,10 +68,4 @@ const updateReport = async (
   });
 
   return { id: report.id };
-};
-
-export const report = {
-  create: createReport,
-  get: getReport,
-  update: updateReport,
 };

@@ -37,16 +37,17 @@ import { DynamicTable } from "@/features/dynamic-table";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarPlus } from "@tabler/icons-react";
 import { parseXLSX } from "@/entities/reports/actions/parse";
-import { ReportStatus } from "@prisma/client";
+import { ReportStatus, BankType } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import { actions } from "@/entities/reports/actions";
+import { updateReport, getReport } from "@/entities/reports/actions/report";
+import { createBankDoc } from "@/entities/reports/actions/bank-doc";
 
 const formSchema = z.object({
   date: z.date({ message: "Обязательное поле" }),
   cash_balance: z.number(),
   bank_balance: z.array(
     z.object({
-      bank: z.string(),
+      bank: z.nativeEnum(BankType),
       balance: z.number(),
     })
   ),
@@ -65,6 +66,7 @@ export function ImportForm() {
   const [previewSheet, setPreviewSheet] = useState<Sheet | undefined>(
     undefined
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SchemaType>({
     mode: "controlled",
@@ -82,15 +84,21 @@ export function ImportForm() {
 
   const { data: report, isLoading: isReportLoading } = useQuery({
     queryKey: ["report", params.id],
-    queryFn: () => actions.report.get(params.id),
+    queryFn: () => getReport(params.id),
   });
 
   useEffect(() => {
     if (!report) return;
 
+    console.log("report", report);
+
     form.setValues({
       date: report.date,
       cash_balance: report.cashBalance,
+      bank_balance: report.bankDocuments.map((item) => ({
+        bank: item.type,
+        balance: item.balance,
+      })),
     });
   }, [report]);
 
@@ -148,9 +156,9 @@ export function ImportForm() {
 
   const handleSubmit = async (values: SchemaType) => {
     console.log("onSubmit", params.id, values, sheets);
+    setIsLoading(true);
 
-    // Update a report
-    await actions.report.update(params.id, {
+    await updateReport(params.id, {
       date: values.date,
       status: ReportStatus.IMPORT,
       cashBalance: values.cash_balance,
@@ -158,18 +166,17 @@ export function ImportForm() {
 
     console.log("report", report);
 
-    values.bank_balance.forEach((item) => {
+    for (const item of values.bank_balance) {
       const bankDoc = report?.bankDocuments.some(
-        (doc) => doc.type.name === item.bank
+        (doc) => doc.type === item.bank
       );
 
       if (!bankDoc) {
-        // createBankDoc(item.bank, item.balance, params.id, bankDoc.type.id);
+        await createBankDoc(item.bank, item.balance, params.id, item.bank);
       }
-      console.log("bankDoc", bankDoc);
-    });
+    }
 
-    // Create a bank document
+    setIsLoading(false);
 
     // Reconcilation transactions
 
@@ -201,7 +208,7 @@ export function ImportForm() {
     <Box pos="relative">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <LoadingOverlay
-          visible={isReportLoading}
+          visible={isReportLoading || isLoading}
           loaderProps={{ children: <Loader color="blue" /> }}
         />
         <Stack gap={20}>
