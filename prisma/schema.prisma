@@ -49,7 +49,7 @@ model BankDocument {
   report   Report @relation(fields: [reportId], references: [id])
   reportId String @map("report_id")
 
-  type   BankType  @default(KASPI) @map("type")
+  type BankType @default(KASPI) @map("type")
 
   transactions BankTransaction[]
 
@@ -62,7 +62,6 @@ enum BankType {
   KASPI
   HALYK
 }
-
 
 model BankTransaction {
   id     String   @id @default(uuid()) @map("id")
