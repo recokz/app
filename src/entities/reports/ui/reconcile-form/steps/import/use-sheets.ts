@@ -9,7 +9,6 @@ import { parseXLSX } from "@/entities/reports/actions/parse";
 
 export function useSheets() {
   const [sheets, setSheets] = useState<Array<Sheet>>([]);
-  const [previewSheet, setPreviewSheet] = useState<Sheet | undefined>();
 
   const handleFileUpload = async (
     file: File | null,
@@ -48,8 +47,6 @@ export function useSheets() {
 
   return {
     sheets,
-    previewSheet,
-    setPreviewSheet,
     handleFileUpload,
     handleRemoveSheet,
     setSheets,

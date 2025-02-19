@@ -8,7 +8,6 @@ import {
   Button,
   Flex,
   TableTd,
-  Modal,
   Stack,
   Table,
   TableTbody,
@@ -22,13 +21,12 @@ import {
   Box,
   Loader,
 } from "@mantine/core";
-import { DynamicTable } from "@/features/dynamic-table";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarPlus } from "@tabler/icons-react";
 import { ReportStatus } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { updateReport, getReport } from "@/entities/reports/actions/report";
-import { createBankDoc } from "@/entities/reports/actions/bank-doc";
+import { createBankDoc } from "@/entities/reports/actions/document";
 import { SchemaType, formSchema } from "./schema";
 import { useSheets } from "./use-sheets";
 import { SheetsTable } from "./sheets-table";
@@ -85,14 +83,8 @@ export function ImportForm() {
     });
   };
 
-  const {
-    sheets,
-    previewSheet,
-    setPreviewSheet,
-    handleFileUpload,
-    handleRemoveSheet,
-    setSheets,
-  } = useSheets();
+  const { sheets, handleFileUpload, handleRemoveSheet, setSheets } =
+    useSheets();
 
   const handleReset = () => {
     form.reset();
@@ -273,11 +265,7 @@ export function ImportForm() {
             </TableTbody>
           </Table>
 
-          <SheetsTable
-            sheets={sheets}
-            onPreview={setPreviewSheet}
-            onRemove={handleRemoveSheet}
-          />
+          <SheetsTable sheets={sheets} onRemove={handleRemoveSheet} />
 
           <Text size="sm" c="orange">
             Для сверки необходимо загрузить как минимум один документ из CRM и
@@ -294,14 +282,6 @@ export function ImportForm() {
           </Flex>
         </Stack>
       </form>
-
-      <Modal
-        opened={!!previewSheet}
-        onClose={() => setPreviewSheet(undefined)}
-        size="100%"
-      >
-        <DynamicTable data={previewSheet?.data || []} />
-      </Modal>
     </Box>
   );
 }
