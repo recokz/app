@@ -8,7 +8,7 @@ export type Sheet = {
   data: DataObject[];
 };
 
-export type ParserDocumentTypes = "kaspi" | "halyk" | "moysklad";
+export type ParserDocumentTypes = "KASPI" | "HALYK" | "MOYSLAD";
 
 export type ParserDocumentFields = {
   title: string;
@@ -25,7 +25,7 @@ export type ParserDefaultFields = Record<
 >;
 
 export const DEFAULT_FIELDS: ParserDefaultFields = {
-  kaspi: {
+  KASPI: {
     title: "Каспи",
     dateField: "Дата операции",
     timeField: "Время",
@@ -33,14 +33,14 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
     rowNumber: 6,
     amountField: "Сумма к зачислению/ списанию (т)",
   },
-  halyk: {
+  HALYK: {
     title: "Халық",
     dateField: "Дата",
     sheetNumber: 1,
     rowNumber: 6,
     amountField: "Сумма операции",
   },
-  moysklad: {
+  MOYSLAD: {
     title: "CRM",
     dateField: "Время",
     sheetNumber: 0,

@@ -1,18 +1,9 @@
 "use client";
 
-import {
-  DataObject,
-  DEFAULT_FIELDS,
-  ParserDocumentTypes,
-  Sheet,
-} from "@/entities/reports/types";
 import { useForm, zodResolver } from "@mantine/form";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { z } from "zod";
-import { bankTypes, useDocumentTypeList } from "../utils";
-import { IconTrash } from "@tabler/icons-react";
-import { IconEye } from "@tabler/icons-react";
+import { bankTypes, useDocumentTypeList } from "../../utils";
 import {
   Button,
   Flex,
@@ -27,8 +18,6 @@ import {
   NumberInput,
   Select,
   FileInput,
-  TableThead,
-  ActionIcon,
   LoadingOverlay,
   Box,
   Loader,
@@ -36,36 +25,17 @@ import {
 import { DynamicTable } from "@/features/dynamic-table";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarPlus } from "@tabler/icons-react";
-import { parseXLSX } from "@/entities/reports/actions/parse";
-import { ReportStatus, BankType } from "@prisma/client";
+import { ReportStatus } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { updateReport, getReport } from "@/entities/reports/actions/report";
 import { createBankDoc } from "@/entities/reports/actions/bank-doc";
-
-const formSchema = z.object({
-  date: z.date({ message: "Обязательное поле" }),
-  cash_balance: z.number(),
-  bank_balance: z.array(
-    z.object({
-      bank: z.nativeEnum(BankType),
-      balance: z.number(),
-    })
-  ),
-  bank_file_type: z.string().nullable(),
-  bank_file: z.instanceof(File).nullable(),
-  crm_file_type: z.string().nullable(),
-  crm_file: z.instanceof(File).nullable(),
-});
-
-type SchemaType = z.infer<typeof formSchema>;
+import { SchemaType, formSchema } from "./schema";
+import { useSheets } from "./use-sheets";
+import { SheetsTable } from "./sheets-table";
 
 export function ImportForm() {
   const params = useParams<{ id: string }>();
   const [bank, setBank] = useState<string | null>(null);
-  const [sheets, setSheets] = useState<Array<Sheet>>([]);
-  const [previewSheet, setPreviewSheet] = useState<Sheet | undefined>(
-    undefined
-  );
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SchemaType>({
@@ -115,38 +85,14 @@ export function ImportForm() {
     });
   };
 
-  const handleFileUpload = async (file: File | null, type: string | null) => {
-    const formValues = form.getValues();
-    console.log("handleFileUpload", type, file);
-    if (type && file) {
-      const defaultFields = DEFAULT_FIELDS[type as ParserDocumentTypes];
-
-      const response: { data: DataObject[] } = await parseXLSX({
-        file: file,
-        date: formValues.date ?? new Date(),
-        sheetNumber: defaultFields.sheetNumber,
-        rowNumber: defaultFields.rowNumber,
-        dateField: defaultFields.dateField,
-        amountField: defaultFields.amountField,
-      });
-
-      setSheets((prevSheets) => [
-        ...prevSheets,
-        {
-          filename: file.name,
-          docType: type as ParserDocumentTypes,
-          data: response.data,
-        },
-      ]);
-
-      form.setFieldValue("bank_file_type", null);
-      form.setFieldValue("bank_file", null);
-    }
-  };
-
-  const handleRemoveSheet = (index: number) => {
-    setSheets((prevSheets) => prevSheets.filter((_, i) => i !== index));
-  };
+  const {
+    sheets,
+    previewSheet,
+    setPreviewSheet,
+    handleFileUpload,
+    handleRemoveSheet,
+    setSheets,
+  } = useSheets();
 
   const handleReset = () => {
     form.reset();
@@ -155,17 +101,16 @@ export function ImportForm() {
   };
 
   const handleSubmit = async (values: SchemaType) => {
-    console.log("onSubmit", params.id, values, sheets);
     setIsLoading(true);
 
+    // Update a report
     await updateReport(params.id, {
       date: values.date,
       status: ReportStatus.IMPORT,
       cashBalance: values.cash_balance,
     });
 
-    console.log("report", report);
-
+    // Create a bank documents
     for (const item of values.bank_balance) {
       const bankDoc = report?.bankDocuments.some(
         (doc) => doc.type === item.bank
@@ -177,6 +122,8 @@ export function ImportForm() {
     }
 
     setIsLoading(false);
+
+    console.log("onSubmit sheets", sheets);
 
     // Reconcilation transactions
 
@@ -279,7 +226,16 @@ export function ImportForm() {
                     {...form.getInputProps("bank_file")}
                     placeholder="Загрузите документ"
                     onChange={(file) =>
-                      handleFileUpload(file, form.getValues().bank_file_type)
+                      handleFileUpload(
+                        file,
+                        form.getValues().bank_file_type,
+                        form.getValues().date
+                      ).then((success) => {
+                        if (success) {
+                          form.setFieldValue("bank_file_type", null);
+                          form.setFieldValue("bank_file", null);
+                        }
+                      })
                     }
                   />
                 </TableTd>
@@ -300,7 +256,16 @@ export function ImportForm() {
                     {...form.getInputProps("crm_file")}
                     placeholder="Загрузите документ"
                     onChange={(file) =>
-                      handleFileUpload(file, form.getValues().crm_file_type)
+                      handleFileUpload(
+                        file,
+                        form.getValues().crm_file_type,
+                        form.getValues().date
+                      ).then((success) => {
+                        if (success) {
+                          form.setFieldValue("crm_file_type", null);
+                          form.setFieldValue("crm_file", null);
+                        }
+                      })
                     }
                   />
                 </TableTd>
@@ -308,48 +273,11 @@ export function ImportForm() {
             </TableTbody>
           </Table>
 
-          {sheets.length > 0 ? (
-            <Table withTableBorder>
-              <TableThead>
-                <TableTr>
-                  <TableTh>название</TableTh>
-                  <TableTh>тип</TableTh>
-                  <TableTh>транзакции</TableTh>
-                  <TableTh>превью</TableTh>
-                  <TableTh>очистить</TableTh>
-                </TableTr>
-              </TableThead>
-              <TableTbody>
-                {sheets.map((sheet, index) => (
-                  <TableTr key={index}>
-                    <TableTd>{sheet.filename}</TableTd>
-                    <TableTd>{sheet.docType}</TableTd>
-                    <TableTd>{sheet.data?.length || 0}</TableTd>
-                    <TableTd>
-                      <ActionIcon
-                        variant="transparent"
-                        c="gray.7"
-                        onClick={() => {
-                          setPreviewSheet(sheet);
-                        }}
-                      >
-                        <IconEye />
-                      </ActionIcon>
-                    </TableTd>
-                    <TableTd>
-                      <ActionIcon
-                        variant="transparent"
-                        c="gray.7"
-                        onClick={() => handleRemoveSheet(index)}
-                      >
-                        <IconTrash />
-                      </ActionIcon>
-                    </TableTd>
-                  </TableTr>
-                ))}
-              </TableTbody>
-            </Table>
-          ) : null}
+          <SheetsTable
+            sheets={sheets}
+            onPreview={setPreviewSheet}
+            onRemove={handleRemoveSheet}
+          />
 
           <Text size="sm" c="orange">
             Для сверки необходимо загрузить как минимум один документ из CRM и
