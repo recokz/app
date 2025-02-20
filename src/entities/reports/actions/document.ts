@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/shared/prisma/prisma";
-import { BankType, CrmType } from "@prisma/client";
+import { BankType, CrmType, TransactionCategory } from "@prisma/client";
 import { Transaction } from "../types";
 
 export const createBankDoc = async (
@@ -77,7 +77,6 @@ export const reconcileTransactions = async ({
   transactions: Array<Transaction>;
 }) => {
   let matchedCount = 0;
-  let createdCount = 0;
 
   await prisma.$transaction(async (tx) => {
     for (const transaction of transactions) {
@@ -95,7 +94,7 @@ export const reconcileTransactions = async ({
             lte: endOfDay,
           },
           crmDocumentId: null,
-          bankDocumentId: bankDocumentId, // Added specific bankDocumentId
+          bankDocumentId: bankDocumentId,
         },
       });
 
@@ -113,5 +112,27 @@ export const reconcileTransactions = async ({
     }
   });
 
-  return { matchedCount, createdCount };
+  return { matchedCount };
+};
+
+export const getTransactionTypes = async (category: "sales" | "expenses") => {
+  const transactionTypes = await prisma.transactionType.findMany({
+    where: {
+      category:
+        category === "sales"
+          ? TransactionCategory.ADMISSION
+          : TransactionCategory.EXPENSES,
+    },
+  });
+  return transactionTypes;
+};
+
+export const updateTransactionType = async (
+  transactionId: string,
+  typeId: string | null
+) => {
+  await prisma.transaction.update({
+    where: { id: transactionId },
+    data: { typeId },
+  });
 };

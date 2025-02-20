@@ -33,11 +33,8 @@ export async function ReconcileForm({ id }: Props) {
     case ReportStatus.SALES:
       timelineStep = 1;
       break;
-    case ReportStatus.INCOME:
-      timelineStep = 2;
-      break;
     case ReportStatus.EXPENSES:
-      timelineStep = 3;
+      timelineStep = 2;
       break;
   }
   return (
@@ -72,14 +69,6 @@ export async function ReconcileForm({ id }: Props) {
         <AccordionPanel>
           <SalesForm />
         </AccordionPanel>
-      </AccordionItem>
-      <AccordionItem key="income" value={ReportStatus.INCOME}>
-        <AccordionControl
-          icon={<AccordionCheckbox active={timelineStep > 2} />}
-        >
-          Прочие поступления
-        </AccordionControl>
-        <AccordionPanel></AccordionPanel>
       </AccordionItem>
       <AccordionItem key="costs" value={ReportStatus.EXPENSES}>
         <AccordionControl

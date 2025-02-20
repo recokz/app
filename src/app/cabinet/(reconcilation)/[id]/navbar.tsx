@@ -39,11 +39,8 @@ export async function ReconcileNavbar({ id }: Props) {
     case ReportStatus.SALES:
       timelineStep = 1;
       break;
-    case ReportStatus.INCOME:
-      timelineStep = 2;
-      break;
     case ReportStatus.EXPENSES:
-      timelineStep = 3;
+      timelineStep = 2;
       break;
   }
 
@@ -68,17 +65,6 @@ export async function ReconcileNavbar({ id }: Props) {
               <TimelineItem bullet={<IconChecklist />} title="Продажи">
                 <Text size="sm" c="dimmed">
                   Сверьте продажи с транзакциями и подтвердите неподтвержденные.
-                </Text>
-                <Text size="xs" mt={4}>
-                  5 мин
-                </Text>
-              </TimelineItem>
-              <TimelineItem
-                bullet={<IconCurrencyDollar />}
-                title="Прочие поступления"
-              >
-                <Text size="sm" c="dimmed">
-                  Укажите источник доходов, отсутствующих в системе.
                 </Text>
                 <Text size="xs" mt={4}>
                   5 мин
