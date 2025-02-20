@@ -5,6 +5,9 @@ CREATE TYPE "ReportStatus" AS ENUM ('IMPORT', 'SALES', 'INCOME', 'EXPENSES', 'DO
 CREATE TYPE "BankType" AS ENUM ('KASPI', 'HALYK');
 
 -- CreateEnum
+CREATE TYPE "CrmType" AS ENUM ('MOYSKLAD');
+
+-- CreateEnum
 CREATE TYPE "TransactionCategory" AS ENUM ('ADMISSION', 'EXPENSES');
 
 -- CreateTable
@@ -42,15 +45,27 @@ CREATE TABLE "bank_documents" (
 );
 
 -- CreateTable
-CREATE TABLE "bank_transactions" (
+CREATE TABLE "crm_documents" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "report_id" TEXT NOT NULL,
+    "type" "CrmType" NOT NULL DEFAULT 'MOYSKLAD',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "crm_documents_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "transactions" (
     "id" TEXT NOT NULL,
     "amount" INTEGER NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
-    "document_id" TEXT NOT NULL,
+    "bank_document_id" TEXT,
+    "crm_document_id" TEXT,
     "type_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "bank_transactions_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -70,7 +85,13 @@ ALTER TABLE "reports" ADD CONSTRAINT "reports_organization_id_fkey" FOREIGN KEY 
 ALTER TABLE "bank_documents" ADD CONSTRAINT "bank_documents_report_id_fkey" FOREIGN KEY ("report_id") REFERENCES "reports"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "bank_transactions" ADD CONSTRAINT "bank_transactions_document_id_fkey" FOREIGN KEY ("document_id") REFERENCES "bank_documents"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "crm_documents" ADD CONSTRAINT "crm_documents_report_id_fkey" FOREIGN KEY ("report_id") REFERENCES "reports"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "bank_transactions" ADD CONSTRAINT "bank_transactions_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "transaction_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_bank_document_id_fkey" FOREIGN KEY ("bank_document_id") REFERENCES "bank_documents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_crm_document_id_fkey" FOREIGN KEY ("crm_document_id") REFERENCES "crm_documents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "transaction_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

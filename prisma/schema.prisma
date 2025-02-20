@@ -27,6 +27,7 @@ model Report {
   organizationId String       @map("organization_id")
 
   bankDocuments BankDocument[]
+  crmDocuments  CrmDocument[]
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -51,7 +52,7 @@ model BankDocument {
 
   type BankType @default(KASPI) @map("type")
 
-  transactions BankTransaction[]
+  transactions Transaction[]
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -63,20 +64,43 @@ enum BankType {
   HALYK
 }
 
-model BankTransaction {
+model CrmDocument {
+  id   String @id @default(uuid()) @map("id")
+  name String
+
+  report   Report @relation(fields: [reportId], references: [id])
+  reportId String @map("report_id")
+
+  type CrmType @default(MOYSKLAD) @map("type")
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("crm_documents")
+}
+
+enum CrmType {
+  MOYSKLAD
+}
+
+model Transaction {
   id     String   @id @default(uuid()) @map("id")
   amount Int      @map("amount")
   date   DateTime @map("date")
 
-  document   BankDocument @relation(fields: [documentId], references: [id])
-  documentId String       @map("document_id")
+  bankDocument   BankDocument? @relation(fields: [bankDocumentId], references: [id])
+  bankDocumentId String?       @map("bank_document_id")
+
+  crmDocument   CrmDocument? @relation(fields: [crmDocumentId], references: [id])
+  crmDocumentId String?      @map("crm_document_id")
 
   type   TransactionType @relation(fields: [typeId], references: [id])
   typeId String          @map("type_id")
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("bank_transactions")
+  @@map("transactions")
 }
 
 model TransactionType {
@@ -85,7 +109,7 @@ model TransactionType {
 
   category TransactionCategory @default(ADMISSION) @map("category")
 
-  transactions BankTransaction[]
+  transactions Transaction[]
 
   createdAt DateTime @default(now()) @map("created_at")
 
