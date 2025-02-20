@@ -12,6 +12,8 @@ import { Suspense } from "react";
 import { ReportStatus } from "@prisma/client";
 import { ImportForm } from "./steps/import";
 import { SalesForm } from "./steps/sales";
+import { ExpensesForm } from "./steps/expenses";
+import { ResultTable } from "./steps/result";
 
 type Props = {
   id: string;
@@ -35,6 +37,9 @@ export async function ReconcileForm({ id }: Props) {
       break;
     case ReportStatus.EXPENSES:
       timelineStep = 2;
+      break;
+    case ReportStatus.DONE:
+      timelineStep = 3;
       break;
   }
   return (
@@ -72,19 +77,23 @@ export async function ReconcileForm({ id }: Props) {
       </AccordionItem>
       <AccordionItem key="costs" value={ReportStatus.EXPENSES}>
         <AccordionControl
-          icon={<AccordionCheckbox active={timelineStep > 3} />}
+          icon={<AccordionCheckbox active={timelineStep > 2} />}
         >
           Расходы
         </AccordionControl>
-        <AccordionPanel></AccordionPanel>
+        <AccordionPanel>
+          <ExpensesForm />
+        </AccordionPanel>
       </AccordionItem>
       <AccordionItem key="result" value={ReportStatus.DONE}>
         <AccordionControl
-          icon={<AccordionCheckbox active={timelineStep > 4} />}
+          icon={<AccordionCheckbox active={timelineStep > 2} />}
         >
           Итог
         </AccordionControl>
-        <AccordionPanel></AccordionPanel>
+        <AccordionPanel>
+          <ResultTable />
+        </AccordionPanel>
       </AccordionItem>
     </Accordion>
   );

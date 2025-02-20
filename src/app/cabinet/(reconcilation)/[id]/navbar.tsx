@@ -42,6 +42,9 @@ export async function ReconcileNavbar({ id }: Props) {
     case ReportStatus.EXPENSES:
       timelineStep = 2;
       break;
+    case ReportStatus.DONE:
+      timelineStep = 3;
+      break;
   }
 
   return (

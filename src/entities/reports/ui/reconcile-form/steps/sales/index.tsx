@@ -28,6 +28,7 @@ import {
   updateTransactionType,
 } from "@/entities/reports/actions/document";
 import { ReportStatus } from "@prisma/client";
+
 export function SalesForm() {
   const params = useParams<{ id: string }>();
   const [tab, setTab] = useState<"all" | "confirmed" | "unconfirmed">("all");
@@ -49,8 +50,6 @@ export function SalesForm() {
     .filter((transaction) => transaction.amount > 0)
     .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
 
-  console.log(allTransactions);
-
   const confirmedTransactions = allTransactions?.filter(
     (transaction) =>
       transaction.crmDocument !== null || transaction.type !== null
@@ -69,12 +68,13 @@ export function SalesForm() {
     queryClient.invalidateQueries({ queryKey: ["report", params.id] });
   };
 
-  const handleNextStep = () => {
-    updateReport(params.id, {
+  const handleNextStep = async () => {
+    await updateReport(params.id, {
       status: ReportStatus.EXPENSES,
       cashBalance: report!.cashBalance,
       date: report!.date,
     });
+    queryClient.invalidateQueries({ queryKey: ["report", params.id] });
   };
 
   return (
