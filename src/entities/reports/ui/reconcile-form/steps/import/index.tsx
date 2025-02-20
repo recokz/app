@@ -122,11 +122,11 @@ export function ImportForm() {
 
     // Create a bank documents
     for (const item of values.bank_balance) {
-      const bankDoc = report?.bankDocuments.find(
+      const existingBankDoc = report?.bankDocuments.find(
         (doc) => doc.type === item.bank
       );
 
-      let bankDocId = bankDoc?.id;
+      let bankDocId = existingBankDoc?.id;
 
       if (!bankDocId) {
         const { id } = await createBankDoc(
@@ -139,12 +139,20 @@ export function ImportForm() {
         bankDocId = id;
       }
 
-      const transactions = sheets.find(
-        (sheet) => sheet.docType === item.bank
-      )?.transactions;
+      const sheetData = sheets.find((sheet) => sheet.docType === item.bank);
+      if (!sheetData?.transactions) continue;
 
-      if (transactions) {
-        await createBankTransaction(bankDocId, transactions);
+      const existingTransactions = existingBankDoc?.transactions || [];
+      const newTransactions = sheetData.transactions.filter((transaction) => {
+        return !existingTransactions.some(
+          (existing) =>
+            existing.amount === transaction.amount &&
+            existing.date.getTime() === transaction.date.getTime()
+        );
+      });
+
+      if (newTransactions.length > 0) {
+        await createBankTransaction(bankDocId, newTransactions);
       }
     }
 
