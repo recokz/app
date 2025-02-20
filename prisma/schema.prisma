@@ -95,8 +95,8 @@ model Transaction {
   crmDocument   CrmDocument? @relation(fields: [crmDocumentId], references: [id])
   crmDocumentId String?      @map("crm_document_id")
 
-  type   TransactionType @relation(fields: [typeId], references: [id])
-  typeId String          @map("type_id")
+  type   TransactionType? @relation(fields: [typeId], references: [id])
+  typeId String?          @map("type_id")
 
   createdAt DateTime @default(now()) @map("created_at")
 

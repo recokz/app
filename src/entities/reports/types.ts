@@ -14,7 +14,7 @@ export type Sheet = {
   transactions: Transaction[];
 };
 
-export type ParserDocumentTypes = "KASPI" | "HALYK" | "MOYSLAD";
+export type ParserDocumentTypes = "KASPI" | "HALYK" | "MOYSKLAD";
 
 export type ParserDocumentFields = {
   title: string;
@@ -46,7 +46,7 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
     rowNumber: 6,
     amountField: "Сумма операции",
   },
-  MOYSLAD: {
+  MOYSKLAD: {
     title: "CRM",
     dateField: "Время",
     sheetNumber: 0,

@@ -62,7 +62,7 @@ CREATE TABLE "transactions" (
     "date" TIMESTAMP(3) NOT NULL,
     "bank_document_id" TEXT,
     "crm_document_id" TEXT,
-    "type_id" TEXT NOT NULL,
+    "type_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
@@ -94,4 +94,4 @@ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_bank_document_id_fkey" F
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_crm_document_id_fkey" FOREIGN KEY ("crm_document_id") REFERENCES "crm_documents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "transaction_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "transaction_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;

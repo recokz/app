@@ -28,11 +28,12 @@ import { useQuery } from "@tanstack/react-query";
 import { updateReport, getReport } from "@/entities/reports/actions/report";
 import {
   createBankDoc,
-  createBankTransaction,
+  createTransaction,
 } from "@/entities/reports/actions/document";
 import { SchemaType, formSchema } from "./schema";
 import { useSheets } from "./use-sheets";
 import { SheetsTable } from "./sheets-table";
+import { showNotification } from "@mantine/notifications";
 
 export function ImportForm() {
   const params = useParams<{ id: string }>();
@@ -73,15 +74,17 @@ export function ImportForm() {
     });
 
     setSheets(
-      report.bankDocuments.map((item) => ({
-        filename: item.name,
-        docType: item.type,
-        transactions: item.transactions.map((transaction) => ({
-          amount: transaction.amount,
-          date: transaction.date,
-        })),
-        data: [],
-      }))
+      report.bankDocuments
+        .filter((item) => item.transactions.length > 0)
+        .map((item) => ({
+          filename: item.name,
+          docType: item.type,
+          transactions: item.transactions.map((transaction) => ({
+            amount: transaction.amount,
+            date: transaction.date,
+          })),
+          data: [],
+        }))
     );
   }, [report]);
 
@@ -110,50 +113,63 @@ export function ImportForm() {
   const handleSubmit = async (values: SchemaType) => {
     setIsLoading(true);
 
-    // Update a report
-    await updateReport(params.id, {
-      date: values.date,
-      status: ReportStatus.IMPORT,
-      cashBalance: values.cash_balance,
-    });
-
-    // Create a bank documents
-    for (const item of values.bank_balance) {
-      const existingBankDoc = report?.bankDocuments.find(
-        (doc) => doc.type === item.bank
-      );
-
-      let bankDocId = existingBankDoc?.id;
-
-      if (!bankDocId) {
-        const { id } = await createBankDoc(
-          item.bank,
-          item.balance,
-          params.id,
-          item.bank
-        );
-
-        bankDocId = id;
-      }
-
-      const sheetData = sheets.find((sheet) => sheet.docType === item.bank);
-      if (!sheetData?.transactions) continue;
-
-      const existingTransactions = existingBankDoc?.transactions || [];
-      const newTransactions = sheetData.transactions.filter((transaction) => {
-        return !existingTransactions.some(
-          (existing) =>
-            existing.amount === transaction.amount &&
-            existing.date.getTime() === transaction.date.getTime()
-        );
+    try {
+      // Update a report
+      await updateReport(params.id, {
+        date: values.date,
+        status: ReportStatus.IMPORT,
+        cashBalance: values.cash_balance,
       });
 
-      if (newTransactions.length > 0) {
-        await createBankTransaction(bankDocId, newTransactions);
-      }
-    }
+      // Create a bank documents
+      for (const item of values.bank_balance) {
+        const existingBankDoc = report?.bankDocuments.find(
+          (doc) => doc.type === item.bank
+        );
 
-    setIsLoading(false);
+        let bankDocId = existingBankDoc?.id;
+
+        if (!bankDocId) {
+          const { id } = await createBankDoc(
+            item.bank,
+            item.balance,
+            params.id,
+            item.bank
+          );
+
+          bankDocId = id;
+        }
+
+        const sheetData = sheets.find((sheet) => sheet.docType === item.bank);
+
+        if (!sheetData?.transactions) continue;
+
+        const existingTransactions = existingBankDoc?.transactions || [];
+        const newTransactions = sheetData.transactions.filter((transaction) => {
+          return !existingTransactions.some(
+            (existing) =>
+              existing.amount === transaction.amount &&
+              existing.date.getTime() === transaction.date.getTime()
+          );
+        });
+
+        if (newTransactions.length > 0) {
+          await createTransaction({
+            bankDocumentId: bankDocId,
+            transactions: newTransactions,
+          });
+        }
+      }
+    } catch (error) {
+      showNotification({
+        title: "Не удалось импортировать данные",
+        message: error instanceof Error ? error.message : "Неизвестная ошибка",
+        color: "red",
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
 
     console.log("onSubmit sheets", sheets);
 

@@ -7,7 +7,7 @@ export const bankTypes: Record<BankType, string> = {
 };
 
 export const crmTypes: Record<string, string> = {
-  moysklad: "Мой склад",
+  MOYSKLAD: "Мой склад",
 };
 
 interface BankBalance {

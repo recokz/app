@@ -37,7 +37,9 @@ export function useSheets() {
           data: response.data,
           transactions:
             (response.data.map((item) => ({
-              amount: Number(item[defaultFields.amountField]),
+              amount: Number(
+                item[defaultFields.amountField].split(",").join(".")
+              ),
               date: new Date(item[defaultFields.dateField]),
             })) as Transaction[]) || [],
         },
