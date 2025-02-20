@@ -36,6 +36,7 @@ export const getReport = async (id: string) => {
           transactions: {
             include: {
               type: true,
+              crmDocument: true,
             },
           },
         },
@@ -43,7 +44,7 @@ export const getReport = async (id: string) => {
       crmDocuments: {
         include: {
           transactions: {
-            include: { type: true },
+            include: { type: true, bankDocument: true },
           },
         },
       },

@@ -84,6 +84,8 @@ export function ImportForm() {
           transactions: item.transactions.map((transaction) => ({
             amount: transaction.amount,
             date: transaction.date,
+            crmDocument: transaction.crmDocument,
+            bankDocument: null,
           })),
           data: [],
         })),
@@ -93,6 +95,8 @@ export function ImportForm() {
         transactions: item.transactions.map((transaction) => ({
           amount: transaction.amount,
           date: transaction.date,
+          bankDocument: transaction.bankDocument,
+          crmDocument: null,
         })),
         data: [],
       })),

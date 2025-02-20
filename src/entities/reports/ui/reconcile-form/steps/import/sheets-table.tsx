@@ -83,6 +83,9 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
                 <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
                   Сумма
                 </TableTh>
+                <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
+                  {previewSheet?.docType === "MOYSKLAD" ? "Банк" : "CRM"}
+                </TableTh>
               </TableTr>
             </TableThead>
             <TableTbody>
@@ -96,6 +99,9 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
                   </TableTd>
                   <TableTd style={{ whiteSpace: "nowrap" }}>
                     {row.amount}
+                  </TableTd>
+                  <TableTd style={{ whiteSpace: "nowrap" }}>
+                    {row.bankDocument?.name || row.crmDocument?.name}
                   </TableTd>
                 </TableTr>
               ))}

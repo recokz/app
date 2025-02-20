@@ -1,3 +1,5 @@
+import { BankDocument, CrmDocument } from "@prisma/client";
+
 export interface DataObject {
   [key: string]: string;
 }
@@ -5,6 +7,8 @@ export interface DataObject {
 export interface Transaction {
   amount: number;
   date: Date;
+  bankDocument: BankDocument | null | undefined;
+  crmDocument: CrmDocument | null | undefined;
 }
 
 export type Sheet = {

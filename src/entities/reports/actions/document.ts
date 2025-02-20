@@ -77,6 +77,7 @@ export const reconcileTransactions = async ({
   transactions: Array<Transaction>;
 }) => {
   let matchedCount = 0;
+  let createdCount = 0;
 
   await prisma.$transaction(async (tx) => {
     for (const transaction of transactions) {
@@ -85,8 +86,6 @@ export const reconcileTransactions = async ({
 
       const endOfDay = new Date(transaction.date);
       endOfDay.setHours(23, 59, 59, 999);
-
-      console.log(transaction.amount, transaction.date);
 
       const matchingTransaction = await tx.transaction.findFirst({
         where: {
@@ -110,9 +109,18 @@ export const reconcileTransactions = async ({
           },
         });
         matchedCount++;
+      } else {
+        await tx.transaction.create({
+          data: {
+            amount: transaction.amount,
+            date: transaction.date,
+            crmDocumentId,
+          },
+        });
+        createdCount++;
       }
     }
   });
 
-  return { matchedCount };
+  return { matchedCount, createdCount };
 };
