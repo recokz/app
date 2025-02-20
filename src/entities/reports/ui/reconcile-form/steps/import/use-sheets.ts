@@ -15,7 +15,7 @@ export function useSheets() {
     file: File | null,
     type: string | null,
     date: Date
-  ) => {
+  ): Promise<Sheet | null> => {
     if (type && file) {
       const defaultFields = DEFAULT_FIELDS[type as ParserDocumentTypes];
 
@@ -29,25 +29,28 @@ export function useSheets() {
         amountField: defaultFields.amountField,
       });
 
-      setSheets((prevSheets) => [
-        ...prevSheets,
-        {
-          filename: file.name,
-          docType: type as ParserDocumentTypes,
-          data: response.data,
-          transactions:
-            (response.data.map((item) => ({
-              amount: Number(
-                item[defaultFields.amountField].split(",").join(".")
-              ),
+      const newSheet: Sheet = {
+        filename: file.name,
+        docType: type as ParserDocumentTypes,
+        data: response.data,
+        transactions:
+          (response.data.map((item) => {
+            const amount = item[defaultFields.amountField];
+            return {
+              amount:
+                typeof amount === "number"
+                  ? amount
+                  : Number(amount.replaceAll(",", ".")),
               date: new Date(item[defaultFields.dateField]),
-            })) as Transaction[]) || [],
-        },
-      ]);
+            };
+          }) as Transaction[]) || [],
+      };
 
-      return true;
+      setSheets((prevSheets) => [...prevSheets, newSheet]);
+
+      return newSheet;
     }
-    return false;
+    return null;
   };
 
   const handleRemoveSheet = (index: number) => {

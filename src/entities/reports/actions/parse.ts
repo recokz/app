@@ -72,14 +72,20 @@ export const parseXLSX = async ({
 
       switch (typeof dateTime) {
         case "number":
-          rowDate = Math.round((dateTime - 25569) * 86400 * 1000);
+          rowDate = dayjs(
+            new Date(Math.round((dateTime - 25569) * 86400 * 1000))
+          )
+            .subtract(5, "hours")
+            .toDate();
           break;
         case "string":
           const stringDate = dateTime?.split(" ")?.[0];
+          const stringTime = dateTime?.split(" ")?.[1] || time;
           const [day, month, year] = stringDate
             ? stringDate.split(".")
             : ["", "", ""];
-          rowDate = `${year}-${month}-${day}` + (time ? ` ${time}` : "");
+          rowDate =
+            `${year}-${month}-${day}` + (stringTime ? ` ${stringTime}` : "");
           break;
         default:
           rowDate = dateTime;

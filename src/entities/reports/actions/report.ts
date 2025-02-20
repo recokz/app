@@ -40,6 +40,13 @@ export const getReport = async (id: string) => {
           },
         },
       },
+      crmDocuments: {
+        include: {
+          transactions: {
+            include: { type: true },
+          },
+        },
+      },
     },
   });
 

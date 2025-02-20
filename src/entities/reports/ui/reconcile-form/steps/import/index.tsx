@@ -28,7 +28,9 @@ import { useQuery } from "@tanstack/react-query";
 import { updateReport, getReport } from "@/entities/reports/actions/report";
 import {
   createBankDoc,
+  createCrmDoc,
   createTransaction,
+  reconcileTransactions,
 } from "@/entities/reports/actions/document";
 import { SchemaType, formSchema } from "./schema";
 import { useSheets } from "./use-sheets";
@@ -73,8 +75,8 @@ export function ImportForm() {
       })),
     });
 
-    setSheets(
-      report.bankDocuments
+    setSheets([
+      ...report.bankDocuments
         .filter((item) => item.transactions.length > 0)
         .map((item) => ({
           filename: item.name,
@@ -84,8 +86,17 @@ export function ImportForm() {
             date: transaction.date,
           })),
           data: [],
-        }))
-    );
+        })),
+      ...report.crmDocuments.map((item) => ({
+        filename: item.name,
+        docType: item.type,
+        transactions: item.transactions.map((transaction) => ({
+          amount: transaction.amount,
+          date: transaction.date,
+        })),
+        data: [],
+      })),
+    ]);
   }, [report]);
 
   const bankBalanceValues = form.getValues().bank_balance;
@@ -170,33 +181,30 @@ export function ImportForm() {
     } finally {
       setIsLoading(false);
     }
+  };
 
-    console.log("onSubmit sheets", sheets);
+  const uploadCrmDoc = async (file: File | null) => {
+    const sheet = await handleFileUpload(
+      file,
+      form.getValues().crm_file_type,
+      form.getValues().date
+    );
 
-    // Reconcilation transactions
+    if (sheet !== null) {
+      form.setFieldValue("crm_file_type", null);
+      form.setFieldValue("crm_file", null);
 
-    // Create a bank transactions
+      const { id } = await createCrmDoc(sheet.filename, params.id, "MOYSKLAD");
 
-    // sheets.forEach(async (sheet) => {
-    //   const bankDoc = await createBankDoc(
-    //     sheet.filename,
-    //     values.bank_balance.find((item) => item.bank === sheet.docType)
-    //       ?.balance || 0,
-    //     params.id
-    //   );
-    //   sheets
-    //     .map((sheet) => parseTransactions(sheet.data, sheet.docType))
-    //     .forEach(async (item) => {
-    //       item.forEach(async (transaction) => {
-    //         await createBankTransaction(
-    //           bankDoc.id,
-    //           transaction.amount,
-    //           transaction.date.toISOString(),
-    //           ""
-    //         );
-    //       });
-    //     });
-    // });
+      for (const item of report?.bankDocuments || []) {
+        const { matchedCount } = await reconcileTransactions({
+          crmDocumentId: id,
+          bankDocumentId: item.id,
+          transactions: sheet.transactions,
+        });
+        console.log(`${matchedCount} transactions reconciled for ${item.name}`);
+      }
+    }
   };
 
   return (
@@ -278,8 +286,8 @@ export function ImportForm() {
                         file,
                         form.getValues().bank_file_type,
                         form.getValues().date
-                      ).then((success) => {
-                        if (success) {
+                      ).then((sheet) => {
+                        if (sheet !== null) {
                           form.setFieldValue("bank_file_type", null);
                           form.setFieldValue("bank_file", null);
                         }
@@ -303,18 +311,7 @@ export function ImportForm() {
                   <FileInput
                     {...form.getInputProps("crm_file")}
                     placeholder="Загрузите документ"
-                    onChange={(file) =>
-                      handleFileUpload(
-                        file,
-                        form.getValues().crm_file_type,
-                        form.getValues().date
-                      ).then((success) => {
-                        if (success) {
-                          form.setFieldValue("crm_file_type", null);
-                          form.setFieldValue("crm_file", null);
-                        }
-                      })
-                    }
+                    onChange={uploadCrmDoc}
                   />
                 </TableTd>
               </TableTr>
