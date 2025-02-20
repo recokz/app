@@ -109,15 +109,6 @@ export const reconcileTransactions = async ({
           },
         });
         matchedCount++;
-      } else {
-        await tx.transaction.create({
-          data: {
-            amount: transaction.amount,
-            date: transaction.date,
-            crmDocumentId,
-          },
-        });
-        createdCount++;
       }
     }
   });

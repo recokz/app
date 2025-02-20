@@ -89,17 +89,19 @@ export function ImportForm() {
           })),
           data: [],
         })),
-      ...report.crmDocuments.map((item) => ({
-        filename: item.name,
-        docType: item.type,
-        transactions: item.transactions.map((transaction) => ({
-          amount: transaction.amount,
-          date: transaction.date,
-          bankDocument: transaction.bankDocument,
-          crmDocument: null,
+      ...report.crmDocuments
+        .filter((item) => item.transactions.length > 0)
+        .map((item) => ({
+          filename: item.name,
+          docType: item.type,
+          transactions: item.transactions.map((transaction) => ({
+            amount: transaction.amount,
+            date: transaction.date,
+            bankDocument: transaction.bankDocument,
+            crmDocument: null,
+          })),
+          data: [],
         })),
-        data: [],
-      })),
     ]);
   }, [report]);
 
@@ -208,6 +210,12 @@ export function ImportForm() {
         });
         console.log(`${matchedCount} transactions reconciled for ${item.name}`);
       }
+
+      await updateReport(params.id, {
+        date: report!.date,
+        status: ReportStatus.SALES,
+        cashBalance: report!.cashBalance,
+      });
     }
   };
 
