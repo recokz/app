@@ -11,6 +11,7 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { IconEye, IconTrash } from "@tabler/icons-react";
+import dayjs from "dayjs";
 import { useState } from "react";
 
 interface SheetsTableProps {
@@ -74,6 +75,9 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
             <TableThead>
               <TableTr>
                 <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
+                  Дата
+                </TableTh>
+                <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
                   Время
                 </TableTh>
                 <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
@@ -85,7 +89,10 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
               {previewSheet?.transactions.map((row, index) => (
                 <TableTr key={index}>
                   <TableTd style={{ whiteSpace: "nowrap" }}>
-                    {row.date.toISOString()}
+                    {dayjs(row.date).format("DD.MM.YYYY")}
+                  </TableTd>
+                  <TableTd style={{ whiteSpace: "nowrap" }}>
+                    {dayjs(row.date).format("HH:mm")}
                   </TableTd>
                   <TableTd style={{ whiteSpace: "nowrap" }}>
                     {row.amount}

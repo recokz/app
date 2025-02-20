@@ -72,20 +72,17 @@ export function ImportForm() {
       })),
     });
 
-    report.bankDocuments.forEach((item) => {
-      setSheets((prev) => [
-        ...prev,
-        {
-          filename: item.name,
-          docType: item.type,
-          transactions: item.transactions.map((transaction) => ({
-            amount: transaction.amount,
-            date: transaction.date,
-          })),
-          data: [],
-        },
-      ]);
-    });
+    setSheets(
+      report.bankDocuments.map((item) => ({
+        filename: item.name,
+        docType: item.type,
+        transactions: item.transactions.map((transaction) => ({
+          amount: transaction.amount,
+          date: transaction.date,
+        })),
+        data: [],
+      }))
+    );
   }, [report]);
 
   const bankBalanceValues = form.getValues().bank_balance;
