@@ -11,6 +11,7 @@ import {
 import { Suspense } from "react";
 import { ReportStatus } from "@prisma/client";
 import { ImportForm } from "./steps/import";
+import { SalesForm } from "./steps/sales";
 
 type Props = {
   id: string;
@@ -68,7 +69,9 @@ export async function ReconcileForm({ id }: Props) {
         >
           Продажи
         </AccordionControl>
-        <AccordionPanel></AccordionPanel>
+        <AccordionPanel>
+          <SalesForm />
+        </AccordionPanel>
       </AccordionItem>
       <AccordionItem key="income" value={ReportStatus.INCOME}>
         <AccordionControl
