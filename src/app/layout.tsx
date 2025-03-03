@@ -7,6 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "./globals.css";
 import { QueryProvider } from "./query-provider";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Reco.kz",
@@ -22,7 +23,9 @@ export default function RootLayout({
     <ClerkProvider localization={ruRU}>
       <html lang="ru" {...mantineHtmlProps}>
         <head>
-          <ColorSchemeScript />
+          <Suspense>
+            <ColorSchemeScript />
+          </Suspense>
         </head>
         <body>
           <QueryProvider>

@@ -1,6 +1,9 @@
 "use client";
 
-import { getReport, updateReport } from "@/entities/reports/actions/report";
+import {
+  getReport,
+  updateReportStatus,
+} from "@/entities/reports/actions/report";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
@@ -22,11 +25,9 @@ import {
 } from "@mantine/core";
 import { useParams } from "next/navigation";
 import dayjs from "dayjs";
-import {
-  getTransactionTypes,
-  updateTransactionType,
-} from "@/entities/reports/actions/document";
-import { ReportStatus } from "@prisma/client";
+import { ReportStatus, TransactionCategory } from "@prisma/client";
+import { getTransactionTypes } from "@/entities/reports/actions/transaction-type";
+import { updateTransactionType } from "../../actions/reconcilation";
 
 export function ExpensesForm() {
   const params = useParams<{ id: string }>();
@@ -39,31 +40,39 @@ export function ExpensesForm() {
 
   const { data: transactionTypes, isLoading: isTransactionTypesLoading } =
     useQuery({
-      queryKey: ["transaction-types"],
-      queryFn: () => getTransactionTypes("expenses"),
+      queryKey: ["transaction-types", TransactionCategory.expense],
+      queryFn: () => getTransactionTypes(TransactionCategory.expense),
     });
 
-  const allTransactions = report?.bankDocuments
-    .flatMap((document) => document.transactions)
-    .filter((transaction) => transaction.amount < 0)
-    .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+  const allTransactions =
+    report?.reconciliations
+      ?.filter(
+        (trx) =>
+          (trx.bankTransaction?.amount || trx.crmTransaction?.amount || 0) < 0,
+      )
+      .sort((a, b) =>
+        dayjs(a.bankTransaction?.date || a.crmTransaction?.date).diff(
+          dayjs(b.bankTransaction?.date || b.crmTransaction?.date),
+        ),
+      ) || [];
 
   const handleUpdateTransactionType = async (
     transactionId: string,
-    typeId: string | null
+    typeId: string | null,
   ) => {
     await updateTransactionType(transactionId, typeId);
     queryClient.invalidateQueries({ queryKey: ["report", params.id] });
   };
 
   const handleNextStep = async () => {
-    await updateReport(params.id, {
-      status: ReportStatus.DONE,
-      cashBalance: report!.cashBalance,
-      date: report!.date,
+    await updateReportStatus({
+      id: params.id,
+      status: ReportStatus.done,
     });
     queryClient.invalidateQueries({ queryKey: ["report", params.id] });
   };
+
+  console.log(allTransactions);
 
   return (
     <Box pos="relative">
@@ -89,7 +98,14 @@ export function ExpensesForm() {
           <Text>Всего</Text>
           <Title order={3}>
             {allTransactions
-              ?.reduce((acc, transaction) => acc + transaction.amount, 0)
+              ?.reduce(
+                (acc, transaction) =>
+                  acc +
+                  (transaction.bankTransaction?.amount ||
+                    transaction.crmTransaction?.amount ||
+                    0),
+                0,
+              )
               .toLocaleString("ru-RU")}
           </Title>
         </UnstyledButton>
@@ -109,14 +125,20 @@ export function ExpensesForm() {
           {allTransactions?.map((row) => (
             <TableTr key={row.id}>
               <TableTd style={{ whiteSpace: "nowrap" }}>
-                {dayjs(row.date).format("DD.MM.YYYY")}
+                {dayjs(
+                  row.bankTransaction?.date || row.crmTransaction?.date,
+                ).format("DD.MM.YYYY")}
               </TableTd>
               <TableTd style={{ whiteSpace: "nowrap" }}>
-                {dayjs(row.date).format("HH:mm")}
+                {dayjs(
+                  row.bankTransaction?.date || row.crmTransaction?.date,
+                ).format("HH:mm")}
               </TableTd>
-              <TableTd style={{ whiteSpace: "nowrap" }}>{row.amount}</TableTd>
               <TableTd style={{ whiteSpace: "nowrap" }}>
-                {row.crmDocument || row.type ? (
+                {row.bankTransaction?.amount || row.crmTransaction?.amount}
+              </TableTd>
+              <TableTd style={{ whiteSpace: "nowrap" }}>
+                {row.crmTransactionId || row.typeId ? (
                   <Badge variant="light" color="blue" size="lg" radius="xs">
                     Подтвержден
                   </Badge>

@@ -28,28 +28,41 @@ export function ResultTable() {
     queryFn: () => getReport(params.id),
   });
 
-  const allTransactions = report?.bankDocuments
-    .flatMap((document) => document.transactions)
-    .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+  const allTransactions =
+    report?.reconciliations.sort((a, b) =>
+      dayjs(a.bankTransaction?.date || a.crmTransaction?.date).diff(
+        dayjs(b.bankTransaction?.date || b.crmTransaction?.date),
+      ),
+    ) || [];
 
   const allIncomeTransaction = allTransactions?.filter(
-    (transaction) => transaction.amount > 0
+    (transaction) =>
+      (transaction.bankTransaction?.amount ||
+        transaction.crmTransaction?.amount ||
+        0) > 0,
   );
 
   const allExpenseTransaction = allTransactions?.filter(
-    (transaction) => transaction.amount < 0
+    (transaction) =>
+      (transaction.bankTransaction?.amount ||
+        transaction.crmTransaction?.amount ||
+        0) < 0,
   );
 
   const startCash =
     (report?.cashBalance || 0) +
-    (report?.bankDocuments?.reduce((acc, document) => {
+    (report?.documents?.reduce((acc, document) => {
       return acc + document.balance;
     }, 0) || 0);
 
   const income =
     allTransactions?.reduce(
-      (acc, transaction) => acc + transaction.amount,
-      0
+      (acc, transaction) =>
+        acc +
+        (transaction.bankTransaction?.amount ||
+          transaction.crmTransaction?.amount ||
+          0),
+      0,
     ) || 0;
 
   const endCash = startCash + income;
@@ -116,7 +129,7 @@ export function ResultTable() {
         <TableThead>
           <TableTr>
             <TableTh></TableTh>
-            {report?.bankDocuments.map((document) => (
+            {report?.documents.map((document) => (
               <TableTh key={document.id}>{document.name}</TableTh>
             ))}
             <TableTh>Наличные</TableTh>
@@ -126,7 +139,7 @@ export function ResultTable() {
         <TableTbody>
           <TableTr>
             <TableTd>На начало</TableTd>
-            {report?.bankDocuments.map((document) => (
+            {report?.documents.map((document) => (
               <TableTd key={document.id}>{document.balance}</TableTd>
             ))}
             <TableTd>{report?.cashBalance || 0}</TableTd>
@@ -135,7 +148,7 @@ export function ResultTable() {
 
           <TableTr>
             <TableTd>Продажи за период</TableTd>
-            {report?.bankDocuments.map((document) => (
+            {report?.documents.map((document) => (
               <TableTd key={document.id}>
                 {document.transactions
                   .filter((transaction) => transaction.amount > 0)
@@ -145,15 +158,19 @@ export function ResultTable() {
             <TableTd>0</TableTd>
             <TableTd>
               {allIncomeTransaction?.reduce(
-                (acc, transaction) => acc + transaction.amount,
-                0
+                (acc, transaction) =>
+                  acc +
+                  (transaction.bankTransaction?.amount ||
+                    transaction.crmTransaction?.amount ||
+                    0),
+                0,
               )}
             </TableTd>
           </TableTr>
 
           <TableTr>
             <TableTd>Расходы за период</TableTd>
-            {report?.bankDocuments.map((document) => (
+            {report?.documents.map((document) => (
               <TableTd key={document.id}>
                 {document.transactions
                   .filter((transaction) => transaction.amount < 0)
@@ -163,20 +180,25 @@ export function ResultTable() {
             <TableTd>0</TableTd>
             <TableTd>
               {allExpenseTransaction?.reduce(
-                (acc, transaction) => acc + transaction.amount,
-                0
+                (acc, transaction) =>
+                  acc +
+                  (transaction.bankTransaction?.amount ||
+                    transaction.crmTransaction?.amount ||
+                    0),
+                0,
               )}
             </TableTd>
           </TableTr>
 
           <TableTr>
             <TableTd>На конец</TableTd>
-            {report?.bankDocuments.map((document) => (
+            {report?.documents.map((document) => (
               <TableTd key={document.id}>
                 {document.balance +
                   document.transactions.reduce(
-                    (acc, transaction) => acc + transaction.amount,
-                    0
+                    (acc, transaction) =>
+                      acc + (transaction?.amount || transaction?.amount || 0),
+                    0,
                   )}
               </TableTd>
             ))}

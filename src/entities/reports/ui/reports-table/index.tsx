@@ -19,6 +19,7 @@ import { ReportsTableTabs } from "./tabs";
 import { prisma } from "@/shared/prisma/prisma";
 import { ReportStatus } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
+import dayjs from "dayjs";
 
 export async function ReportsTable() {
   const user = await currentUser();
@@ -39,15 +40,15 @@ export async function ReportsTable() {
   let doneCount = 0;
 
   reports?.forEach((item) => {
-    if (item.status !== ReportStatus.DONE) inProgressCount++;
-    if (item.status === ReportStatus.DONE) doneCount++;
+    if (item.status !== ReportStatus.done) inProgressCount++;
+    if (item.status === ReportStatus.done) doneCount++;
   });
 
   const displayedReports =
     reports?.filter((item) => {
       if (tab === "all") return true;
-      if (tab === "in_progress") return item.status !== ReportStatus.DONE;
-      if (tab === "done") return item.status === ReportStatus.DONE;
+      if (tab === "in_progress") return item.status !== ReportStatus.done;
+      if (tab === "done") return item.status === ReportStatus.done;
     }) || [];
 
   return (
@@ -76,10 +77,10 @@ export async function ReportsTable() {
           <TableTbody>
             {displayedReports.map((item, index) => (
               <TableTr key={index}>
-                <TableTd>{item.date.toLocaleDateString()}</TableTd>
+                <TableTd>{dayjs(item.startDate).format("DD.MM.YYYY")}</TableTd>
                 <TableTd>{item.cashBalance}</TableTd>
                 <TableTd>
-                  {item.status !== ReportStatus.DONE ? (
+                  {item.status !== ReportStatus.done ? (
                     <Badge variant="light" color="blue" size="lg" radius="xs">
                       В работе
                     </Badge>

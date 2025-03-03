@@ -13,9 +13,10 @@ export const createReport = async (): Promise<{ id: string }> => {
 
   const report = await prisma.report.create({
     data: {
-      date: new Date(),
+      startDate: new Date(),
+      endDate: new Date(),
       cashBalance: 0,
-      status: ReportStatus.IMPORT,
+      status: ReportStatus.import_info,
       organization: {
         connect: {
           id: user.privateMetadata.organizationId as string,
@@ -31,46 +32,68 @@ export const getReport = async (id: string) => {
   const report = await prisma.report.findFirst({
     where: { id },
     include: {
-      bankDocuments: {
+      documents: {
         include: {
-          transactions: {
-            include: {
-              type: true,
-              crmDocument: true,
-            },
-          },
+          transactions: true,
         },
       },
-      crmDocuments: {
+      reconciliations: {
         include: {
-          transactions: {
-            include: { type: true, bankDocument: true },
-          },
+          bankTransaction: true,
+          crmTransaction: true,
+          type: true,
         },
       },
     },
   });
 
   if (!report) {
-    throw new Error(`Отчет не найден: ${id}`);
+    throw new Error(`Отчет ${id} не найден`);
   }
 
   return report;
 };
 
-export const updateReport = async (
-  id: string,
-  data: {
-    date: Date;
-    status: ReportStatus;
-    cashBalance: number;
-  }
-): Promise<{ id: string }> => {
+export const updateReportDate = async (data: {
+  id: string;
+  date: Date;
+  status: ReportStatus;
+}): Promise<{ id: string }> => {
   const report = await prisma.report.update({
-    where: { id },
+    where: { id: data.id },
     data: {
-      date: data.date,
+      startDate: data.date,
+      endDate: data.date,
+      status: data.status,
+    },
+  });
+
+  return { id: report.id };
+};
+
+export const updateReportCash = async (data: {
+  id: string;
+  cashBalance: number;
+  status: ReportStatus;
+}): Promise<{ id: string }> => {
+  const report = await prisma.report.update({
+    where: { id: data.id },
+    data: {
       cashBalance: data.cashBalance,
+      status: data.status,
+    },
+  });
+
+  return { id: report.id };
+};
+
+export const updateReportStatus = async (data: {
+  id: string;
+  status: ReportStatus;
+}): Promise<{ id: string }> => {
+  const report = await prisma.report.update({
+    where: { id: data.id },
+    data: {
       status: data.status,
     },
   });

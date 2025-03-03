@@ -9,6 +9,7 @@
     "lint": "next lint",
     "prisma-studio": "npx prisma studio",
     "prisma-migrate": "npx prisma migrate dev",
+    "prisma-reset": "npx prisma migrate reset",
     "prisma-generate": "npx prisma generate"
   },
   "dependencies": {
@@ -23,7 +24,7 @@
     "@tabler/icons-react": "^3.30.0",
     "@tanstack/react-query": "^5.66.3",
     "dayjs": "^1.11.13",
-    "next": "15.1.7",
+    "next": "15.2.0",
     "nuqs": "^2.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -40,6 +41,7 @@
     "postcss": "^8.5.2",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
+    "prettier": "3.5.3",
     "prisma": "^6.3.1",
     "typescript": "^5"
   }

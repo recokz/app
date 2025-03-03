@@ -1,4 +1,4 @@
-import { Sheet, DEFAULT_FIELDS } from "@/entities/reports/types";
+import { DEFAULT_FIELDS } from "@/entities/reports/types";
 import {
   Table,
   TableThead,
@@ -13,14 +13,21 @@ import {
 import { IconEye, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
+import { Document, Transaction } from "@prisma/client";
+
+type DocumentWithTransactions = Document & {
+  transactions: Transaction[];
+};
 
 interface SheetsTableProps {
-  sheets: Sheet[];
-  onRemove: (index: number) => void;
+  sheets: DocumentWithTransactions[];
+  onRemove: (id: string) => void;
 }
 
 export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
-  const [previewSheet, setPreviewSheet] = useState<Sheet | undefined>();
+  const [previewSheet, setPreviewSheet] = useState<
+    DocumentWithTransactions | undefined
+  >();
 
   if (sheets.length === 0) return null;
 
@@ -39,8 +46,8 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
         <TableTbody>
           {sheets.map((sheet, index) => (
             <TableTr key={index}>
-              <TableTd>{sheet.filename}</TableTd>
-              <TableTd>{DEFAULT_FIELDS[sheet.docType].title}</TableTd>
+              <TableTd>{sheet.name}</TableTd>
+              <TableTd>{DEFAULT_FIELDS[sheet.type].title}</TableTd>
               <TableTd>{sheet.transactions.length}</TableTd>
               <TableTd>
                 <ActionIcon
@@ -55,7 +62,7 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
                 <ActionIcon
                   variant="transparent"
                   c="gray.7"
-                  onClick={() => onRemove(index)}
+                  onClick={() => onRemove(sheet.id)}
                 >
                   <IconTrash />
                 </ActionIcon>
@@ -83,9 +90,6 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
                 <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
                   Сумма
                 </TableTh>
-                <TableTh style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
-                  {previewSheet?.docType === "MOYSKLAD" ? "Банк" : "CRM"}
-                </TableTh>
               </TableTr>
             </TableThead>
             <TableTbody>
@@ -99,9 +103,6 @@ export function SheetsTable({ sheets, onRemove }: SheetsTableProps) {
                   </TableTd>
                   <TableTd style={{ whiteSpace: "nowrap" }}>
                     {row.amount}
-                  </TableTd>
-                  <TableTd style={{ whiteSpace: "nowrap" }}>
-                    {row.bankDocument?.name || row.crmDocument?.name}
                   </TableTd>
                 </TableTr>
               ))}

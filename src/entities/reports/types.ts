@@ -1,14 +1,13 @@
-import { BankDocument, CrmDocument } from "@prisma/client";
+import { Document } from "@prisma/client";
 
 export interface DataObject {
-  [key: string]: string;
+  [key: string]: string | number;
 }
 
 export interface Transaction {
   amount: number;
   date: Date;
-  bankDocument: BankDocument | null | undefined;
-  crmDocument: CrmDocument | null | undefined;
+  document: Document | null | undefined;
 }
 
 export type Sheet = {
@@ -18,7 +17,11 @@ export type Sheet = {
   transactions: Transaction[];
 };
 
-export type ParserDocumentTypes = "KASPI" | "HALYK" | "MOYSKLAD";
+export type ParserDocumentTypes =
+  | "kaspi"
+  | "kaspi_sales"
+  | "halyk"
+  | "moysklad";
 
 export type ParserDocumentFields = {
   title: string;
@@ -35,7 +38,7 @@ export type ParserDefaultFields = Record<
 >;
 
 export const DEFAULT_FIELDS: ParserDefaultFields = {
-  KASPI: {
+  kaspi: {
     title: "Каспи",
     dateField: "Дата операции",
     timeField: "Время",
@@ -43,14 +46,22 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
     rowNumber: 6,
     amountField: "Сумма к зачислению/ списанию (т)",
   },
-  HALYK: {
+  kaspi_sales: {
+    title: "Каспи продажи",
+    dateField: "Дата операции",
+    timeField: "Время",
+    sheetNumber: 0,
+    rowNumber: 6,
+    amountField: "Сумма к зачислению/ списанию (т)",
+  },
+  halyk: {
     title: "Халық",
     dateField: "Дата",
     sheetNumber: 1,
     rowNumber: 6,
     amountField: "Сумма операции",
   },
-  MOYSKLAD: {
+  moysklad: {
     title: "CRM",
     dateField: "Время",
     sheetNumber: 0,
