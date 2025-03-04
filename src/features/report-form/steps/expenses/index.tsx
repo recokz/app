@@ -72,8 +72,6 @@ export function ExpensesForm() {
     queryClient.invalidateQueries({ queryKey: ["report", params.id] });
   };
 
-  console.log(allTransactions);
-
   return (
     <Box pos="relative">
       <LoadingOverlay

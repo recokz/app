@@ -1,3 +1,4 @@
+import { CreateReportButton } from "@/features/create-report";
 import LogoutButton from "@/features/log-out-button";
 import {
   AppShell,
@@ -5,7 +6,6 @@ import {
   AppShellMain,
   AppShellNavbar,
   Box,
-  Button,
   Flex,
   Stack,
   Title,
@@ -39,7 +39,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
         pl="calc(var(--app-shell-navbar-offset, 0rem) + var(--app-shell-padding))"
       >
         <Flex justify="end">
-          <Button>Добавить отчет</Button>
+          <CreateReportButton />
         </Flex>
       </AppShellFooter>
     </AppShell>

@@ -64,8 +64,6 @@ export function useSheets() {
     }
     const defaultFields = DEFAULT_FIELDS[type as ParserDocumentTypes];
 
-    console.log(defaultFields);
-
     const response = await parseXLSX(file, date, {
       sheetNumber: defaultFields.sheetNumber,
       rowNumber: defaultFields.rowNumber,
