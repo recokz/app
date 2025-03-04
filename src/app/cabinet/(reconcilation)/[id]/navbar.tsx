@@ -13,7 +13,6 @@ import { ReportStatus } from "@prisma/client";
 import {
   IconArrowLeft,
   IconChecklist,
-  IconCurrencyDollar,
   IconReportMoney,
   IconUpload,
 } from "@tabler/icons-react";
@@ -33,16 +32,18 @@ export async function ReconcileNavbar({ id }: Props) {
   let timelineStep = 0;
 
   switch (report?.status) {
-    case ReportStatus.IMPORT:
+    case ReportStatus.import_info:
+    case ReportStatus.import_bank:
+    case ReportStatus.import_crm:
       timelineStep = 0;
       break;
-    case ReportStatus.SALES:
+    case ReportStatus.sales:
       timelineStep = 1;
       break;
-    case ReportStatus.EXPENSES:
+    case ReportStatus.expenses:
       timelineStep = 2;
       break;
-    case ReportStatus.DONE:
+    case ReportStatus.done:
       timelineStep = 3;
       break;
   }

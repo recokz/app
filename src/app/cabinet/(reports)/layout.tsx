@@ -1,4 +1,4 @@
-import { CreateReportButton } from "@/features/create-report";
+import { CreateReportButton } from "@/entities/reports/ui/reports-table/create-report";
 import LogoutButton from "@/features/log-out-button";
 import {
   AppShell,
