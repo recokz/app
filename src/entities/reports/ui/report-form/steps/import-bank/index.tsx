@@ -22,10 +22,10 @@ import {
   BankDocumentType,
   bankTypes,
   useDocumentTypeList,
-} from "@/features/report-form/utils";
+} from "@/entities/reports/ui/report-form/utils";
 import { DocumentType, ReportStatus } from "@prisma/client";
-import { useSheets } from "@/features/report-form/use-sheets";
-import { SheetsTable } from "@/features/report-form/sheets-table";
+import { useSheets } from "@/entities/reports/ui/report-form/use-sheets";
+import { SheetsTable } from "@/entities/reports/ui/report-form/sheets-table";
 
 export const formSchema = z.object({
   cash_balance: z.number(),

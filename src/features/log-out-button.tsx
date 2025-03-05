@@ -4,7 +4,7 @@ import { Button } from "@mantine/core";
 import { useClerk } from "@clerk/clerk-react";
 import { useRouter } from "next/navigation";
 
-export default function LogoutButton() {
+export function LogoutButton() {
   const { signOut } = useClerk();
   const router = useRouter();
 

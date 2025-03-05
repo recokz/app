@@ -11,13 +11,13 @@ import {
 } from "@mantine/core";
 import { Suspense, useEffect, useState } from "react";
 import { ReportStatus } from "@prisma/client";
-import { ImportInfoStepForm } from "@/features/report-form/steps/import-info";
+import { ImportInfoStepForm } from "@/entities/reports/ui/report-form/steps/import-info";
 import { getReport } from "@/entities/reports/actions/report";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { ImportBankStepForm } from "@/features/report-form/steps/import-bank";
-import { ImportCrmStepForm } from "@/features/report-form/steps/import-crm";
-import { SalesForm } from "@/features/report-form/steps/sales";
+import { ImportBankStepForm } from "@/entities/reports/ui/report-form/steps/import-bank";
+import { ImportCrmStepForm } from "@/entities/reports/ui/report-form/steps/import-crm";
+import { SalesForm } from "@/entities/reports/ui/report-form/steps/sales";
 import { ExpensesForm } from "./steps/expenses";
 import { ResultTable } from "./steps/result";
 

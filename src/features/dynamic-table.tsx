@@ -17,7 +17,7 @@ interface TableComponentProps {
   data: DataObject[];
 }
 
-export const DynamicTable: React.FC<TableComponentProps> = ({ data }) => {
+export function DynamicTable({ data }: TableComponentProps) {
   const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
   return (
@@ -49,4 +49,4 @@ export const DynamicTable: React.FC<TableComponentProps> = ({ data }) => {
       </Table>
     </ScrollArea>
   );
-};
+}

@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/shared/prisma/prisma";
-import { bankTypes, crmTypes } from "@/features/report-form/utils";
+import { bankTypes, crmTypes } from "@/entities/reports/ui/report-form/utils";
 
 export const reconcileReport = async (reportId: string) => {
   const report = await prisma.report.findUnique({

@@ -19,10 +19,10 @@ import { useForm, zodResolver } from "@mantine/form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { z } from "zod";
-import { useDocumentTypeList } from "@/features/report-form/utils";
-import { useSheets } from "@/features/report-form/use-sheets";
-import { SheetsTable } from "@/features/report-form/sheets-table";
-import { reconcileReport } from "@/features/report-form/actions/reconcilation";
+import { useDocumentTypeList } from "@/entities/reports/ui/report-form/utils";
+import { useSheets } from "@/entities/reports/ui/report-form/use-sheets";
+import { SheetsTable } from "@/entities/reports/ui/report-form/sheets-table";
+import { reconcileReport } from "@/entities/reports/ui/report-form/actions/reconcilation";
 import { notifications } from "@mantine/notifications";
 import { ReportStatus } from "@prisma/client";
 

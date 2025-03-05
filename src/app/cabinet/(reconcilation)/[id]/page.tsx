@@ -1,5 +1,5 @@
 import { Title } from "@mantine/core";
-import { ReportForm } from "@/features/report-form";
+import { ReportForm } from "@/entities/reports/ui/report-form";
 import { Suspense } from "react";
 
 export default async function ReconcilationPage() {

@@ -16,7 +16,7 @@ dayjs.extend(customParseFormat);
 export function MantineProvider({ children }: { children: React.ReactNode }) {
   return (
     <DatesProvider settings={{ locale: "ru" }}>
-      <MantineProviderCore>
+      <MantineProviderCore defaultColorScheme="light">
         {children}
         <Notifications position={"top-right"} />
       </MantineProviderCore>
