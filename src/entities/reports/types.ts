@@ -49,10 +49,10 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
   kaspi_sales: {
     title: "Каспи продажи",
     dateField: "Дата операции",
-    timeField: "Время",
+    timeField: "Время операции",
     sheetNumber: 0,
-    rowNumber: 6,
-    amountField: "Сумма к зачислению/ списанию (т)",
+    rowNumber: 18,
+    amountField: "Сумма операции",
   },
   halyk: {
     title: "Халық",
