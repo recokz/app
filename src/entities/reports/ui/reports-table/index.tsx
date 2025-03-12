@@ -5,6 +5,7 @@ import {
   Text,
   TableThead,
   Badge,
+  Flex,
 } from "@mantine/core";
 import { TableTd } from "@mantine/core";
 import { EmptyReportsInProgress } from "./empty-states";
@@ -20,6 +21,7 @@ import { prisma } from "@/shared/prisma/prisma";
 import { ReportStatus } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import dayjs from "dayjs";
+import { DeleteReportButton } from "./delete-report";
 
 export async function ReportsTable() {
   const user = await currentUser();
@@ -91,13 +93,16 @@ export async function ReportsTable() {
                   )}
                 </TableTd>
                 <TableTd align="right">
-                  <ActionIcon
-                    component={Link}
-                    href={`/cabinet/${item.id}`}
-                    variant="transparent"
-                  >
-                    <IconPencilMinus color="var(--mantine-color-dark-3)" />
-                  </ActionIcon>
+                  <Flex gap={8}>
+                    <DeleteReportButton id={item.id} />
+                    <ActionIcon
+                      component={Link}
+                      href={`/cabinet/${item.id}`}
+                      variant="transparent"
+                    >
+                      <IconPencilMinus color="var(--mantine-color-dark-3)" />
+                    </ActionIcon>
+                  </Flex>
                 </TableTd>
               </TableTr>
             ))}

@@ -84,8 +84,6 @@ function detectHeaderRow(
 ) {
   if (!worksheet["!ref"]) return 0;
 
-  console.log(headerIdentifiers, start, end);
-
   const range = XLSX.utils.decode_range(worksheet["!ref"]);
 
   for (let rowIndex = start; rowIndex <= end; rowIndex++) {

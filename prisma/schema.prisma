@@ -53,7 +53,7 @@ model Document {
   link    String       @map("link")
   type    DocumentType @map("type")
 
-  report   Report @relation(fields: [reportId], references: [id])
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
   reportId String @map("report_id")
 
   transactions Transaction[]
@@ -89,7 +89,7 @@ model Transaction {
 model Reconciliation {
   id String @id @default(uuid()) @map("id")
 
-  report   Report @relation(fields: [reportId], references: [id])
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
   reportId String @map("report_id")
 
   bankTransaction   Transaction? @relation("BankTransaction", fields: [bankTransactionId], references: [id])

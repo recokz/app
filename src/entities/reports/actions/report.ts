@@ -100,3 +100,10 @@ export const updateReportStatus = async (data: {
 
   return { id: report.id };
 };
+export const deleteReport = async (id: string): Promise<{ id: string }> => {
+  const report = await prisma.report.delete({
+    where: { id },
+  });
+
+  return { id: report.id };
+};
