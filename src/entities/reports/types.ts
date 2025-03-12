@@ -28,7 +28,7 @@ export type ParserDocumentFields = {
   dateField: string;
   timeField?: string;
   sheetNumber: number;
-  rowNumber: number;
+  rowNumber: number | number[];
   amountField: string;
 };
 
@@ -65,7 +65,7 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
     title: "CRM",
     dateField: "Время",
     sheetNumber: 0,
-    rowNumber: 7,
+    rowNumber: [6, 8],
     amountField: "Итого",
   },
 };

@@ -13,7 +13,7 @@ type ParsedData = {
 
 type FileParams = {
   sheetNumber: number;
-  rowNumber: number;
+  rowNumber: number | number[];
   dateField: string;
   timeField?: string;
   amountField: string;
@@ -28,8 +28,20 @@ export const parseXLSX = async (
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheetName = workbook.SheetNames[params.sheetNumber];
   const worksheet = workbook.Sheets[sheetName];
+
+  const headerRow = detectHeaderRow(
+    worksheet,
+    [params.dateField, params.amountField],
+    typeof params.rowNumber === "number"
+      ? params.rowNumber - 1
+      : params.rowNumber[0],
+    typeof params.rowNumber === "number"
+      ? params.rowNumber
+      : params.rowNumber[1],
+  );
+
   const jsonData: DataObject[] = XLSX.utils.sheet_to_json(worksheet, {
-    range: params.rowNumber,
+    range: headerRow,
   });
 
   const data: DataObject[] = jsonData?.reduce<DataObject[]>((acc, row) => {
@@ -63,3 +75,42 @@ const parseAmount = (amount: string | number): number => {
   }
   return amount;
 };
+
+function detectHeaderRow(
+  worksheet: XLSX.WorkSheet,
+  headerIdentifiers: string[],
+  start: number,
+  end: number,
+) {
+  if (!worksheet["!ref"]) return 0;
+
+  console.log(headerIdentifiers, start, end);
+
+  const range = XLSX.utils.decode_range(worksheet["!ref"]);
+
+  for (let rowIndex = start; rowIndex <= end; rowIndex++) {
+    let potentialHeadersFound = 0;
+
+    for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+      const cell = worksheet[cellAddress];
+
+      if (cell && cell.v) {
+        if (
+          headerIdentifiers.some(
+            (identifier) =>
+              String(cell.v).trim().toLowerCase() === identifier.toLowerCase(),
+          )
+        ) {
+          potentialHeadersFound++;
+        }
+      }
+    }
+
+    if (potentialHeadersFound >= 2) {
+      return rowIndex;
+    }
+  }
+
+  return 1;
+}
