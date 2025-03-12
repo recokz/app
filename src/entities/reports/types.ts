@@ -43,7 +43,7 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
     dateField: "Дата операции",
     timeField: "Время",
     sheetNumber: 0,
-    rowNumber: 6,
+    rowNumber: [5, 8],
     amountField: "Сумма к зачислению/ списанию (т)",
   },
   kaspi_sales: {
@@ -51,14 +51,14 @@ export const DEFAULT_FIELDS: ParserDefaultFields = {
     dateField: "Дата операции",
     timeField: "Время операции",
     sheetNumber: 0,
-    rowNumber: 18,
+    rowNumber: [16, 19],
     amountField: "Сумма операции",
   },
   halyk: {
     title: "Халық",
     dateField: "Дата",
     sheetNumber: 1,
-    rowNumber: 6,
+    rowNumber: [5, 7],
     amountField: "Сумма операции",
   },
   moysklad: {
