@@ -9,6 +9,7 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css";
 import { QueryProvider } from "./query-provider";
 import { Suspense } from "react";
+import { ChatwootWidget } from "@/shared/chatwoot/chatwoot-widget";
 
 const gtmId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
 
@@ -32,6 +33,7 @@ export default function RootLayout({
           </Suspense>
         </head>
         <body>
+          <ChatwootWidget />
           <QueryProvider>
             <NuqsAdapter>
               <MantineProvider>{children}</MantineProvider>
