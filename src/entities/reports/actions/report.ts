@@ -34,7 +34,12 @@ export const getReport = async (id: string) => {
     include: {
       documents: {
         include: {
-          transactions: true,
+          transactions: {
+            include: {
+              bankReconciliations: true,
+              crmReconciliations: true,
+            },
+          },
         },
       },
       reconciliations: {

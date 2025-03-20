@@ -26,43 +26,49 @@ export const parseXLSX = async (
 ): Promise<ParsedData> => {
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: "array" });
-  const sheetName = workbook.SheetNames[params.sheetNumber];
-  const worksheet = workbook.Sheets[sheetName];
 
-  const headerRow = detectHeaderRow(
-    worksheet,
-    [params.dateField, params.amountField],
-    typeof params.rowNumber === "number"
-      ? params.rowNumber - 1
-      : params.rowNumber[0],
-    typeof params.rowNumber === "number"
-      ? params.rowNumber
-      : params.rowNumber[1],
-  );
+  const data: DataObject[] = [];
 
-  const jsonData: DataObject[] = XLSX.utils.sheet_to_json(worksheet, {
-    range: headerRow,
-  });
+  workbook.SheetNames.forEach((sheetName) => {
+    const worksheet = workbook.Sheets[sheetName];
 
-  const data: DataObject[] = jsonData?.reduce<DataObject[]>((acc, row) => {
-    const rowDate = row[params.dateField];
-    if (!rowDate) return acc;
-
-    const parsedDate = parseDateTime(
-      row[params.dateField],
-      params.timeField ? row[params.timeField]?.toString() : undefined,
+    const headerRow = detectHeaderRow(
+      worksheet,
+      [params.dateField, params.amountField],
+      typeof params.rowNumber === "number"
+        ? params.rowNumber - 1
+        : params.rowNumber[0],
+      typeof params.rowNumber === "number"
+        ? params.rowNumber
+        : params.rowNumber[1],
     );
-    const amount = parseAmount(row[params.amountField]);
 
-    if (areSameDate(parsedDate, date) && !isNaN(amount)) {
-      acc.push({
-        ...row,
-        [params.dateField]: parsedDate.format("YYYY-MM-DD HH:mm"),
-      });
-    }
+    const jsonData: DataObject[] = XLSX.utils.sheet_to_json(worksheet, {
+      range: headerRow,
+    });
 
-    return acc;
-  }, []);
+    data.push(
+      ...jsonData?.reduce<DataObject[]>((acc, row) => {
+        const rowDate = row[params.dateField];
+        if (!rowDate) return acc;
+
+        const parsedDate = parseDateTime(
+          row[params.dateField],
+          params.timeField ? row[params.timeField]?.toString() : undefined,
+        );
+        const amount = parseAmount(row[params.amountField]);
+
+        if (areSameDate(parsedDate, date) && !isNaN(amount)) {
+          acc.push({
+            ...row,
+            [params.dateField]: parsedDate.format("YYYY-MM-DD HH:mm"),
+          });
+        }
+
+        return acc;
+      }, []),
+    );
+  });
 
   return {
     data,
@@ -82,7 +88,7 @@ function detectHeaderRow(
   start: number,
   end: number,
 ) {
-  if (!worksheet["!ref"]) return 0;
+  if (!worksheet?.["!ref"]) return 0;
 
   const range = XLSX.utils.decode_range(worksheet["!ref"]);
 

@@ -28,7 +28,7 @@ export const ChatwootWidget = () => {
     window.chatwootSettings = {
       hideMessageBubble: false,
       position: "right", // This can be left or right
-      locale: "en", // Language to be set
+      locale: "ru", // Language to be set
       type: "standard", // [standard, expanded_bubble]
     };
 

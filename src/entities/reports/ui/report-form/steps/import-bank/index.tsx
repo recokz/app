@@ -80,10 +80,12 @@ export const ImportBankStepForm = () => {
     if (report) {
       form.setValues({
         cash_balance: report.cashBalance,
-        bank_balance: report.documents.map((item) => ({
-          bank: item.type,
-          balance: item.balance,
-        })),
+        bank_balance: report.documents
+          .filter((item) => bankTypes.hasOwnProperty(item.type))
+          .map((item) => ({
+            bank: item.type,
+            balance: item.balance,
+          })),
       });
     }
   }, [report]);

@@ -70,7 +70,7 @@ export function parseDateTime(
     const dayString = (day < 10 ? "0" : "") + day;
 
     // Create date string in YYYY-MM-DD format as expected by dayjs
-    const isoDate = `${year}-${monthString}-${dayString}`;
+    const isoDate = `${year < 100 ? year + 2000 : year}-${monthString}-${dayString}`;
     const isoTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
     // Create the date with timezone awareness

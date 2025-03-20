@@ -16,9 +16,11 @@ import {
   Text,
   UnstyledButton,
   Title,
+  ScrollArea,
 } from "@mantine/core";
 import { useParams } from "next/navigation";
 import dayjs from "dayjs";
+import { bankTypes } from "../../utils";
 
 export function ResultTable() {
   const params = useParams<{ id: string }>();
@@ -27,6 +29,11 @@ export function ResultTable() {
     queryKey: ["report", params.id],
     queryFn: () => getReport(params.id),
   });
+
+  const bankDocuments =
+    report?.documents?.filter((document) =>
+      bankTypes.hasOwnProperty(document.type),
+    ) || [];
 
   const allTransactions =
     report?.reconciliations.sort((a, b) =>
@@ -51,7 +58,7 @@ export function ResultTable() {
 
   const startCash =
     (report?.cashBalance || 0) +
-    (report?.documents?.reduce((acc, document) => {
+    (bankDocuments?.reduce((acc, document) => {
       return acc + document.balance;
     }, 0) || 0);
 
@@ -125,88 +132,141 @@ export function ResultTable() {
         </UnstyledButton>
       </Flex>
 
-      <Table>
-        <TableThead>
-          <TableTr>
-            <TableTh></TableTh>
-            {report?.documents.map((document) => (
-              <TableTh key={document.id}>{document.name}</TableTh>
-            ))}
-            <TableTh>Наличные</TableTh>
-            <TableTh>Итого</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          <TableTr>
-            <TableTd>На начало</TableTd>
-            {report?.documents.map((document) => (
-              <TableTd key={document.id}>{document.balance}</TableTd>
-            ))}
-            <TableTd>{report?.cashBalance || 0}</TableTd>
-            <TableTd>{startCash.toLocaleString("ru-RU")}</TableTd>
-          </TableTr>
-
-          <TableTr>
-            <TableTd>Продажи за период</TableTd>
-            {report?.documents.map((document) => (
-              <TableTd key={document.id}>
-                {document.transactions
-                  .filter((transaction) => transaction.amount > 0)
-                  .reduce((acc, transaction) => acc + transaction.amount, 0)}
+      <ScrollArea>
+        <Table>
+          <TableThead>
+            <TableTr>
+              <TableTh></TableTh>
+              {bankDocuments.map((document) => (
+                <TableTh key={document.id}>
+                  <Text lineClamp={1}>{document.name}</Text>
+                </TableTh>
+              ))}
+              <TableTh>
+                <Text lineClamp={1}>Наличные</Text>
+              </TableTh>
+              <TableTh>
+                <Text lineClamp={1}>Итого</Text>
+              </TableTh>
+            </TableTr>
+          </TableThead>
+          <TableTbody>
+            <TableTr>
+              <TableTd>
+                <Text lineClamp={1}>На начало</Text>
               </TableTd>
-            ))}
-            <TableTd>0</TableTd>
-            <TableTd>
-              {allIncomeTransaction?.reduce(
-                (acc, transaction) =>
-                  acc +
-                  (transaction.bankTransaction?.amount ||
-                    transaction.crmTransaction?.amount ||
-                    0),
-                0,
-              )}
-            </TableTd>
-          </TableTr>
+              {bankDocuments.map((document) => (
+                <TableTd key={document.id}>{document.balance}</TableTd>
+              ))}
+              <TableTd>{report?.cashBalance || 0}</TableTd>
+              <TableTd>{startCash.toLocaleString("ru-RU")}</TableTd>
+            </TableTr>
 
-          <TableTr>
-            <TableTd>Расходы за период</TableTd>
-            {report?.documents.map((document) => (
-              <TableTd key={document.id}>
-                {document.transactions
-                  .filter((transaction) => transaction.amount < 0)
-                  .reduce((acc, transaction) => acc + transaction.amount, 0)}
+            <TableTr>
+              <TableTd>
+                <Text fw={700} lineClamp={1}>
+                  Продажи за период
+                </Text>
               </TableTd>
-            ))}
-            <TableTd>0</TableTd>
-            <TableTd>
-              {allExpenseTransaction?.reduce(
-                (acc, transaction) =>
-                  acc +
-                  (transaction.bankTransaction?.amount ||
-                    transaction.crmTransaction?.amount ||
-                    0),
-                0,
-              )}
-            </TableTd>
-          </TableTr>
-
-          <TableTr>
-            <TableTd>На конец</TableTd>
-            {report?.documents.map((document) => (
-              <TableTd key={document.id}>
-                {document.balance +
-                  document.transactions.reduce(
+              {bankDocuments.map((document) => (
+                <TableTd key={document.id}>
+                  <Text fw={700} lineClamp={1}>
+                    {document.transactions
+                      .filter((transaction) => transaction.amount > 0)
+                      .reduce(
+                        (acc, transaction) => acc + transaction.amount,
+                        0,
+                      )}
+                  </Text>
+                </TableTd>
+              ))}
+              <TableTd>
+                <Text fw={700} lineClamp={1}>
+                  0
+                </Text>
+              </TableTd>
+              <TableTd>
+                <Text fw={700} lineClamp={1}>
+                  {allIncomeTransaction?.reduce(
                     (acc, transaction) =>
-                      acc + (transaction?.amount || transaction?.amount || 0),
+                      acc +
+                      (transaction.bankTransaction?.amount ||
+                        transaction.crmTransaction?.amount ||
+                        0),
                     0,
                   )}
+                </Text>
               </TableTd>
-            ))}
-            <TableTd>{report?.cashBalance || 0}</TableTd>
-            <TableTd>{endCash.toLocaleString("ru-RU")}</TableTd>
-          </TableTr>
-        </TableTbody>
-      </Table>
+            </TableTr>
+
+            {/*<TableTr>*/}
+            {/*  <TableTd>*/}
+            {/*    <Text lineClamp={1}>&nbsp; &nbsp; Продажи</Text>*/}
+            {/*  </TableTd>*/}
+            {/*  {bankDocuments.map((document) => (*/}
+            {/*    <TableTd key={document.id}>*/}
+            {/*      {document.transactions*/}
+            {/*        .filter((transaction) => transaction.amount > 0)*/}
+            {/*        .reduce((acc, transaction) => acc + transaction.amount, 0)}*/}
+            {/*    </TableTd>*/}
+            {/*  ))}*/}
+            {/*  <TableTd>0</TableTd>*/}
+            {/*  <TableTd>*/}
+            {/*    {allIncomeTransaction?.reduce(*/}
+            {/*      (acc, transaction) =>*/}
+            {/*        acc +*/}
+            {/*        (transaction.bankTransaction?.amount ||*/}
+            {/*          transaction.crmTransaction?.amount ||*/}
+            {/*          0),*/}
+            {/*      0,*/}
+            {/*    )}*/}
+            {/*  </TableTd>*/}
+            {/*</TableTr>*/}
+
+            <TableTr>
+              <TableTd>
+                <Text lineClamp={1}>Расходы за период</Text>
+              </TableTd>
+              {bankDocuments.map((document) => (
+                <TableTd key={document.id}>
+                  {document.transactions
+                    .filter((transaction) => transaction.amount < 0)
+                    .reduce((acc, transaction) => acc + transaction.amount, 0)}
+                </TableTd>
+              ))}
+              <TableTd>0</TableTd>
+              <TableTd>
+                {allExpenseTransaction?.reduce(
+                  (acc, transaction) =>
+                    acc +
+                    (transaction.bankTransaction?.amount ||
+                      transaction.crmTransaction?.amount ||
+                      0),
+                  0,
+                )}
+              </TableTd>
+            </TableTr>
+
+            <TableTr>
+              <TableTd>
+                <Text lineClamp={1}>На конец</Text>
+              </TableTd>
+              {bankDocuments.map((document) => (
+                <TableTd key={document.id}>
+                  {document.balance +
+                    document.transactions.reduce(
+                      (acc, transaction) =>
+                        acc + (transaction?.amount || transaction?.amount || 0),
+                      0,
+                    )}
+                </TableTd>
+              ))}
+              <TableTd>{report?.cashBalance || 0}</TableTd>
+              <TableTd>{endCash.toLocaleString("ru-RU")}</TableTd>
+            </TableTr>
+          </TableTbody>
+        </Table>
+      </ScrollArea>
     </Box>
   );
 }
