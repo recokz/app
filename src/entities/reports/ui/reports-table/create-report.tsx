@@ -26,6 +26,7 @@ export function CreateReportButton() {
 
   return (
     <Button
+      id="create-report"
       onClick={() => mutate()}
       size="lg"
       rightSection={<IconPlus />}

@@ -35,6 +35,9 @@ export async function ReportsTable() {
     where: {
       organizationId: user.privateMetadata.organizationId as string,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   const allCount = reports?.length || 0;

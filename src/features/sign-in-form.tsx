@@ -50,6 +50,7 @@ export function SignInForm() {
 
           <Flex direction="column" gap={12}>
             <TextInput
+              id="email"
               {...form.getInputProps("email")}
               size="lg"
               placeholder="Ваша почта"
@@ -58,6 +59,7 @@ export function SignInForm() {
               autoComplete="off"
             />
             <PasswordInput
+              id="password"
               {...form.getInputProps("password")}
               size="lg"
               name="password"
@@ -70,6 +72,7 @@ export function SignInForm() {
           <Flex justify="space-between" align="center" gap={12}>
             <div />
             <Button
+              id="sign-in-submit"
               type="submit"
               size="lg"
               loading={isLoading}

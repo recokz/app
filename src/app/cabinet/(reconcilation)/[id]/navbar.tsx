@@ -87,6 +87,7 @@ export async function ReconcileNavbar({ id }: Props) {
         </Stack>
         <Box>
           <Button
+            id="return-reports"
             component={Link}
             href="/cabinet"
             variant="subtle"

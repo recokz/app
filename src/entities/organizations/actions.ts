@@ -6,7 +6,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 export const createOrganization = async (
   userId: string | null,
   name: string,
-  xin: string
+  xin: string,
 ) => {
   const clerk = await clerkClient();
   if (!userId) {

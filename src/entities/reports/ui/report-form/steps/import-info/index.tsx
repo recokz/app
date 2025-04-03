@@ -92,6 +92,7 @@ export const ImportInfoStepForm = () => {
 
             <Flex justify="end">
               <Button
+                id="info-next-step"
                 type="submit"
                 size="lg"
                 loading={isPending}
