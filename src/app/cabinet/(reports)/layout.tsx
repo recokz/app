@@ -12,6 +12,7 @@ import {
   Title,
 } from "@mantine/core";
 import { ReactNode } from "react";
+import { CabinetNavBar } from "@/features/cabinet-nav-bar";
 
 export default async function Layout({ children }: { children: ReactNode }) {
   return (
@@ -27,7 +28,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     >
       <AppShellNavbar p="md">
         <Stack justify="space-between" h="100%">
-          <div />
+          <CabinetNavBar />
           <Flex gap={10} align="center" justify="space-between">
             <LogoutButton />
           </Flex>

@@ -9,11 +9,12 @@ datasource db {
 }
 
 model Organization {
-  id        String   @id @default(uuid()) @map("id")
-  name      String
-  xin       String
-  reports   Report[]
-  createdAt DateTime @default(now()) @map("created_at")
+  id              String            @id @default(uuid()) @map("id")
+  name            String
+  xin             String
+  reports         Report[]
+  createdAt       DateTime          @default(now()) @map("created_at")
+  TransactionType TransactionType[]
 
   @@map("organizations")
 }
@@ -111,6 +112,9 @@ model TransactionType {
   name String
 
   category TransactionCategory @default(income) @map("category")
+
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?       @map("organization_id")
 
   createdAt DateTime @default(now()) @map("created_at")
 

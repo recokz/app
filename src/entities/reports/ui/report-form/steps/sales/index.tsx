@@ -27,8 +27,8 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { ReportStatus, TransactionCategory } from "@prisma/client";
-import { getTransactionTypes } from "@/entities/reports/actions/transaction-type";
 import { updateTransactionType } from "../../actions/reconcilation";
+import { getTransactionTypes } from "@/entities/transaction-types/actions";
 
 export function SalesForm() {
   const params = useParams<{ id: string }>();
