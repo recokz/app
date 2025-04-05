@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Flex,
-  Input,
-  Modal,
-  NumberInput,
-  Select,
-  TextInput,
-} from "@mantine/core";
+import { Button, Flex, Modal, Select, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useForm, zodResolver } from "@mantine/form";
 import { z } from "zod";
